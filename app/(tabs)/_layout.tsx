@@ -1,33 +1,58 @@
+import { Ionicons } from '@expo/vector-icons'; // Usando Ionicons para ícones melhores
 import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#4DB6AC', // Cor de destaque (ciano/verde água)
+        tabBarInactiveTintColor: '#888888', // Cor dos ícones inativos
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          backgroundColor: '#0B0D17', // Fundo azul escuro/preto (Design Espacial)
+          borderTopColor: '#1A1A2E', // Linha sutil na borda superior
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Início',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={28} name={focused ? 'planet' : 'planet-outline'} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Explorar',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={28} name={focused ? 'search' : 'search-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="quiz"
+        options={{
+          title: 'Quiz',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={28} name={focused ? 'help-circle' : 'help-circle-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: 'Notícias',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={28} name={focused ? 'newspaper' : 'newspaper-outline'} color={color} />
+          ),
         }}
       />
     </Tabs>
