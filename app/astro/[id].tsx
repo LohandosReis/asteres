@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const astrosBd = {
   'jupiter': {
@@ -16,7 +16,7 @@ const astrosBd = {
       'Sua Grande Mancha Vermelha é uma tempestade gigantesca maior que a Terra.',
       'Um dia em Júpiter dura apenas 10 horas.'
     ],
-    cor: '#C88C51'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg'
   },
   'lua': {
     nome: 'A Lua',
@@ -30,7 +30,7 @@ const astrosBd = {
       'Foi formada há cerca de 4,5 bilhões de anos.',
       'A Lua não possui atmosfera.'
     ],
-    cor: '#CCCCCC'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg'
   },
   'terra': {
     nome: 'Terra',
@@ -44,7 +44,7 @@ const astrosBd = {
       'Cerca de 71% da superfície da Terra é coberta por água.',
       'A Terra não é uma esfera perfeita, é um esferoide oblato.'
     ],
-    cor: '#4A90E2'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg'
   },
   'marte': {
     nome: 'Marte',
@@ -58,7 +58,7 @@ const astrosBd = {
       'Possui o maior vulcão do sistema solar, o Olympus Mons.',
       'Sua atmosfera é muito fina e composta principalmente de dióxido de carbono.'
     ],
-    cor: '#E24A4A'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg'
   },
   'saturno': {
     nome: 'Saturno',
@@ -72,7 +72,7 @@ const astrosBd = {
       'É o planeta menos denso do sistema solar, flutuaria na água.',
       'Os anéis são feitos de pedaços de gelo e rocha.'
     ],
-    cor: '#E2C24A'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg'
   },
   'tita': {
     nome: 'Titã',
@@ -86,7 +86,7 @@ const astrosBd = {
       'Única lua conhecida com uma atmosfera densa.',
       'Possui lagos e rios de metano e etano líquidos.'
     ],
-    cor: '#E2A74A'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Titan_in_true_color.jpg'
   },
   'europa': {
     nome: 'Europa',
@@ -100,7 +100,7 @@ const astrosBd = {
       'Sua superfície é composta de gelo de água.',
       'Acredita-se que exista um oceano de água líquida sob a crosta de gelo.'
     ],
-    cor: '#A0D8E0'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Europa-moon.jpg'
   },
   'andromeda': {
     nome: 'Andrômeda',
@@ -114,7 +114,7 @@ const astrosBd = {
       'Está em rota de colisão com a nossa galáxia.',
       'Pode ser vista a olho nu no céu noturno em locais escuros.'
     ],
-    cor: '#9B59B6'
+    imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg'
   }
 };
 
@@ -135,7 +135,7 @@ export default function AstroDetailsScreen() {
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.heroSection}>
-          <View style={[styles.planetImage, { backgroundColor: astro.cor }]} />
+          <Image source={{ uri: astro.imagemUrl }} style={styles.planetImage} />
           <Text style={styles.planetTemperature}>{astro.temperatura}</Text>
           <Text style={styles.planetName}>{astro.nome}</Text>
           <Text style={styles.planetType}>{astro.tipo}</Text>
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   backText: { color: '#FFF', fontSize: 16, marginLeft: 5 },
   container: { flex: 1, paddingHorizontal: 20 },
   heroSection: { alignItems: 'center', marginBottom: 40, marginTop: 10 },
-  planetImage: { width: 150, height: 150, borderRadius: 75, marginBottom: 20 },
+  planetImage: { width: 150, height: 150, borderRadius: 75, marginBottom: 20, backgroundColor: '#1A1A2E' },
   planetTemperature: { color: '#4DB6AC', fontSize: 24, fontWeight: 'bold' },
   planetName: { color: '#FFF', fontSize: 40, fontWeight: 'bold' },
   planetType: { color: '#888', fontSize: 18, marginTop: 5 },
