@@ -1,17 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
+import { FlatList, Image, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const astrosData = [
-  { id: 'jupiter', nome: 'Júpiter', tipo: 'Planeta', cor: '#C88C51' },
-  { id: 'tita', nome: 'Titã', tipo: 'Lua', cor: '#E2A74A' },
-  { id: 'marte', nome: 'Marte', tipo: 'Planeta', cor: '#E24A4A' },
-  { id: 'europa', nome: 'Europa', tipo: 'Lua', cor: '#A0D8E0' },
-  { id: 'saturno', nome: 'Saturno', tipo: 'Planeta', cor: '#E2C24A' },
-  { id: 'lua', nome: 'A Lua', tipo: 'Lua', cor: '#CCCCCC' },
-  { id: 'andromeda', nome: 'Andrômeda', tipo: 'Galáxia', cor: '#9B59B6' },
+  { id: 'jupiter', nome: 'Júpiter', tipo: 'Planeta', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg' },
+  { id: 'tita', nome: 'Titã', tipo: 'Lua', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Titan_in_true_color.jpg' },
+  { id: 'marte', nome: 'Marte', tipo: 'Planeta', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg' },
+  { id: 'europa', nome: 'Europa', tipo: 'Lua', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Europa-moon.jpg' },
+  { id: 'saturno', nome: 'Saturno', tipo: 'Planeta', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg' },
+  { id: 'lua', nome: 'A Lua', tipo: 'Lua', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg' },
+  { id: 'andromeda', nome: 'Andrômeda', tipo: 'Galáxia', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg' },
 ];
 
 const categorias = ['Todos', 'Planetas', 'Luas', 'Estruturas'];
@@ -19,7 +18,7 @@ const categorias = ['Todos', 'Planetas', 'Luas', 'Estruturas'];
 export default function ExploreScreen() {
   const [pesquisa, setPesquisa] = useState('');
   const [categoriaAtiva, setCategoriaAtiva] = useState('Todos');
-  const router = useRouter(); // <-- Inicializamos o router aqui!
+  const router = useRouter();
 
   const astrosFiltrados = astrosData.filter((astro) => {
     const atendePesquisa = astro.nome.toLowerCase().includes(pesquisa.toLowerCase());
@@ -72,20 +71,17 @@ export default function ExploreScreen() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            
-           
             <TouchableOpacity 
               style={styles.astroCard}
               onPress={() => router.push(`/astro/${item.id}`)}
             >
-              <View style={[styles.astroImage, { backgroundColor: item.cor }]} />
+              <Image source={{ uri: item.imagemUrl }} style={styles.astroImage} />
               <View style={styles.astroInfo}>
                 <Text style={styles.astroName}>{item.nome}</Text>
                 <Text style={styles.astroType}>{item.tipo}</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#888" />
             </TouchableOpacity>
-
           )}
         />
       </View>
@@ -106,7 +102,7 @@ const styles = StyleSheet.create({
   filterText: { color: '#888', fontWeight: '600' },
   filterTextActive: { color: '#05050A' },
   astroCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1A1A2E', borderRadius: 15, padding: 15, marginBottom: 15 },
-  astroImage: { width: 50, height: 50, borderRadius: 25, marginRight: 15 },
+  astroImage: { width: 50, height: 50, borderRadius: 25, marginRight: 15, backgroundColor: '#1A1A2E' },
   astroInfo: { flex: 1 },
   astroName: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
   astroType: { color: '#4DB6AC', fontSize: 14, marginTop: 2 },
