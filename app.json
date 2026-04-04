@@ -4,13 +4,23 @@
     "slug": "asteres",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/images/logo-asteres.png",
     "scheme": "asteres",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/logo-asteres.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#05050A"
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "package": "com.seu_nome.asteres"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo-asteres.png",
+        "backgroundColor": "#05050A"
+      },
+      "package": "com.lohandosreis.asteres"
     },
     "plugins": [
       "expo-router"
