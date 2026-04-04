@@ -1,7 +1,6 @@
 import { Link } from "expo-router";
 import React from "react";
 import {
-  Image,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -11,94 +10,123 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+// Importando os ícones
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
+  // 1. CONFIGURAÇÃO DAS CATEGORIAS COM ÍCONES
+  const categories = [
+    {
+      title: "Planetas",
+      subtitle: "Os mundos do Sistema Solar",
+      route: "/explore?filter=Planetas",
+      icon: "planet",
+      lib: "Ionicons",
+    },
+    {
+      title: "Luas",
+      subtitle: "Satélites e companheiros espaciais",
+      route: "/explore?filter=Luas",
+      icon: "moon",
+      lib: "Ionicons",
+    },
+    {
+      title: "Nebulosas",
+      subtitle: "Berçários de estrelas distantes",
+      route: "/explore?filter=Nebulosas",
+      icon: "flare",
+      lib: "MaterialCommunityIcons",
+    },
+    {
+      title: "Galáxias",
+      subtitle: "Imensas cidades de estrelas",
+      route: "/explore?filter=Galaxias",
+      icon: "orbit",
+      lib: "MaterialCommunityIcons",
+    },
+    {
+      title: "Constelações",
+      subtitle: "Mapas estelares da antiguidade",
+      route: "/explore?filter=Constelacoes",
+      icon: "auto-fix",
+      lib: "MaterialCommunityIcons",
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" />
+
+      {/* HEADER DA TELA */}
       <View style={styles.header}>
         <Text style={styles.title}>Asteres</Text>
-        <Text style={styles.subtitle}>Explore o universo na palma da mão</Text>
+        <Text style={styles.headerSubtitle}>Guia Definitivo do Cosmos</Text>
       </View>
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* SEÇÃO DE PLANETAS */}
-        <Text style={styles.sectionTitle}>Planetas</Text>
+        <Text style={styles.welcomeText}>O que vamos explorar hoje?</Text>
 
-        <Link href="/astro/jupiter" asChild>
-          <TouchableOpacity style={styles.card}>
-            <Image
-              source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg",
-              }}
-              style={styles.cardImage}
-            />
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Júpiter</Text>
-              <Text style={styles.cardSubtitle}>Planeta Gasoso</Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
+        {/* MAPEAMENTO DAS CATEGORIAS */}
+        {categories.map((cat) => (
+          <View key={cat.title} style={styles.section}>
+            <Link href={cat.route as any} asChild>
+              <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+                {/* CONTAINER DO ÍCONE DE FUNDO */}
+                <View style={styles.iconBackground}>
+                  {cat.lib === "Ionicons" ? (
+                    <Ionicons
+                      name={cat.icon as any}
+                      size={80}
+                      color="rgba(77, 182, 172, 0.15)"
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name={cat.icon as any}
+                      size={80}
+                      color="rgba(77, 182, 172, 0.15)"
+                    />
+                  )}
+                </View>
 
-        <Link href="/astro/terra" asChild>
-          <TouchableOpacity style={styles.card}>
-            <Image
-              source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg",
-              }}
-              style={styles.cardImage}
-            />
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Terra</Text>
-              <Text style={styles.cardSubtitle}>Planeta Rochoso</Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
+                <View style={styles.cardContent}>
+                  <View style={styles.row}>
+                    {/* MINI ÍCONE AO LADO DO TÍTULO */}
+                    {cat.lib === "Ionicons" ? (
+                      <Ionicons
+                        name={cat.icon as any}
+                        size={24}
+                        color="#4DB6AC"
+                        style={{ marginRight: 10 }}
+                      />
+                    ) : (
+                      <MaterialCommunityIcons
+                        name={cat.icon as any}
+                        size={24}
+                        color="#4DB6AC"
+                        style={{ marginRight: 10 }}
+                      />
+                    )}
+                    <Text style={styles.cardTitle}>{cat.title}</Text>
+                  </View>
 
-        {/* SEÇÃO DE GALÁXIAS E NEBULOSAS */}
-        <Text style={styles.sectionTitle}>Galáxias e Nebulosas</Text>
+                  <Text style={styles.cardDescription}>{cat.subtitle}</Text>
 
-        <Link href="/astro/andromeda" asChild>
-          <TouchableOpacity style={styles.card}>
-            <Image
-              source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg",
-              }}
-              style={styles.cardImage}
-            />
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Andrômeda</Text>
-              <Text style={styles.cardSubtitle}>Galáxia Espiral</Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>Explorar Categoria</Text>
+                    <Ionicons
+                      name="arrow-forward"
+                      size={14}
+                      color="#4DB6AC"
+                      style={{ marginLeft: 5 }}
+                    />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        ))}
 
-        <Link href="/astro/orion" asChild>
-          <TouchableOpacity style={styles.card}>
-            <Image
-              source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg",
-              }}
-              style={styles.cardImage}
-            />
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Nebulosa de Órion</Text>
-              <Text style={styles.cardSubtitle}>Berçário Estelar</Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
-
-        {/* BOTÃO DO QUIZ CORRIGIDO */}
-        <Link href="/quiz" asChild>
-          <TouchableOpacity style={styles.quizCard}>
-            <View style={styles.cardContent}>
-              <Text style={styles.quizTitle}>🚀 Jogar Quiz Espacial</Text>
-              <Text style={styles.quizSubtitle}>Teste seus conhecimentos!</Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
-
-        {/* Espaço extra no final para conseguir rolar a tela tranquilamente */}
-        <View style={styles.footerSpace} />
+        <View style={{ height: 50 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,78 +140,84 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    paddingBottom: 10,
+    backgroundColor: "#05050A",
   },
   title: {
     color: "#FFF",
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: "bold",
+    letterSpacing: 1,
   },
-  subtitle: {
+  headerSubtitle: {
     color: "#4DB6AC",
     fontSize: 16,
-    marginTop: 5,
+    fontWeight: "500",
   },
   container: {
     flex: 1,
     paddingHorizontal: 20,
   },
-  sectionTitle: {
-    color: "#FFF",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 15,
+  welcomeText: {
+    color: "#888",
+    fontSize: 14,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  section: {
+    marginBottom: 20,
   },
   card: {
     backgroundColor: "#1A1A2E",
-    borderRadius: 15,
+    borderRadius: 20,
+    height: 140,
     overflow: "hidden",
-    marginBottom: 15,
-    flexDirection: "row",
-    alignItems: "center",
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "#222",
+    justifyContent: "center",
   },
-  cardImage: {
-    width: 100,
-    height: 100,
-    resizeMode: "cover",
+  iconBackground: {
+    position: "absolute",
+    right: -10,
+    bottom: -10,
+    transform: [{ rotate: "-15deg" }],
   },
   cardContent: {
-    padding: 15,
-    flex: 1,
+    padding: 20,
+    zIndex: 2,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
   },
   cardTitle: {
     color: "#FFF",
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
   },
-  cardSubtitle: {
-    color: "#888",
+  cardDescription: {
+    color: "#CCC",
     fontSize: 14,
-    marginTop: 4,
+    opacity: 0.8,
   },
-
-  // Novos estilos limpos para não quebrar a Web
-  quizCard: {
-    backgroundColor: "#4DB6AC",
-    borderRadius: 15,
-    overflow: "hidden",
-    marginBottom: 15,
-    marginTop: 20,
+  badge: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "rgba(77, 182, 172, 0.1)",
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: "rgba(77, 182, 172, 0.3)",
   },
-  quizTitle: {
-    color: "#05050A",
-    fontSize: 18,
+  badgeText: {
+    color: "#4DB6AC",
+    fontSize: 12,
     fontWeight: "bold",
-  },
-  quizSubtitle: {
-    color: "#05050A",
-    fontSize: 14,
-    marginTop: 4,
-  },
-  footerSpace: {
-    height: 40,
   },
 });

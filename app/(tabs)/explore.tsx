@@ -1,109 +1,305 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { FlatList, Image, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"; // Importação dos ícones
+import { Link, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const astrosData = [
-  { id: 'jupiter', nome: 'Júpiter', tipo: 'Planeta', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg' },
-  { id: 'tita', nome: 'Titã', tipo: 'Lua', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Titan_in_true_color.jpg' },
-  { id: 'marte', nome: 'Marte', tipo: 'Planeta', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg' },
-  { id: 'europa', nome: 'Europa', tipo: 'Lua', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Europa-moon.jpg' },
-  { id: 'saturno', nome: 'Saturno', tipo: 'Planeta', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg' },
-  { id: 'lua', nome: 'A Lua', tipo: 'Lua', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg' },
-  { id: 'andromeda', nome: 'Andrômeda', tipo: 'Galáxia', imagemUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg' },
+// 1. BANCO DE DADOS USANDO NOMES DE ÍCONES (ICON NAME)
+const allAstros = [
+  // PLANETAS
+  {
+    id: "mercurio",
+    nome: "Mercúrio",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "planet",
+  },
+  {
+    id: "venus",
+    nome: "Vênus",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "planet-outline",
+  },
+  {
+    id: "terra",
+    nome: "Terra",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "earth",
+  },
+  {
+    id: "marte",
+    nome: "Marte",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "planet",
+  },
+  {
+    id: "jupiter",
+    nome: "Júpiter",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "blur-circular",
+  },
+  {
+    id: "saturno",
+    nome: "Saturno",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "ring-superior",
+  },
+  {
+    id: "urano",
+    nome: "Urano",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "planet-outline",
+  },
+  {
+    id: "netuno",
+    nome: "Netuno",
+    tipo: "Planeta",
+    categoria: "planetas",
+    icon: "water-outline",
+  },
+
+  // LUAS
+  { id: "lua", nome: "Lua", tipo: "Satélite", categoria: "luas", icon: "moon" },
+  {
+    id: "europa",
+    nome: "Europa",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "snow-outline",
+  },
+  {
+    id: "tita",
+    nome: "Titã",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "cloud-outline",
+  },
+
+  // NEBULOSAS
+  {
+    id: "orion",
+    nome: "Órion",
+    tipo: "Nebulosa",
+    categoria: "nebulosas",
+    icon: "flare",
+  },
+  {
+    id: "carina",
+    nome: "Carina",
+    tipo: "Nebulosa",
+    categoria: "nebulosas",
+    icon: "auto-fix",
+  },
+
+  // GALÁXIAS
+  {
+    id: "andromeda",
+    nome: "Andrômeda",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "sync",
+  },
+  {
+    id: "vialactea",
+    nome: "Via Láctea",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "milky-way",
+  },
+
+  // CONSTELAÇÕES
+  {
+    id: "cruzeiro",
+    nome: "Cruzeiro do Sul",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star-outline",
+  },
 ];
 
-const categorias = ['Todos', 'Planetas', 'Luas', 'Estruturas'];
-
 export default function ExploreScreen() {
-  const [pesquisa, setPesquisa] = useState('');
-  const [categoriaAtiva, setCategoriaAtiva] = useState('Todos');
-  const router = useRouter();
+  const params = useLocalSearchParams();
+  const [filter, setFilter] = useState("Todos");
+  const [search, setSearch] = useState("");
 
-  const astrosFiltrados = astrosData.filter((astro) => {
-    const atendePesquisa = astro.nome.toLowerCase().includes(pesquisa.toLowerCase());
-    const atendeCategoria = 
-      categoriaAtiva === 'Todos' || 
-      (categoriaAtiva === 'Estruturas' && astro.tipo === 'Galáxia') || 
-      astro.tipo + 's' === categoriaAtiva; 
+  useEffect(() => {
+    if (params.filter) {
+      setFilter(params.filter as string);
+    }
+  }, [params.filter]);
 
-    return atendePesquisa && atendeCategoria;
+  const filteredData = allAstros.filter((item) => {
+    const matchesFilter =
+      filter === "Todos" || item.categoria === filter.toLowerCase();
+    const matchesSearch = item.nome
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    return matchesFilter && matchesSearch;
   });
 
+  const categories = [
+    "Todos",
+    "Planetas",
+    "Luas",
+    "Nebulosas",
+    "Galaxias",
+    "Constelacoes",
+  ];
+
+  // FUNÇÃO PARA RENDERIZAR O ÍCONE CORRETO BASEADO NA CATEGORIA OU NOME
+  const renderAstroIcon = (iconName: string, category: string) => {
+    if (category === "planetas" || category === "luas") {
+      return <Ionicons name={iconName as any} size={30} color="#4DB6AC" />;
+    }
+    return (
+      <MaterialCommunityIcons
+        name={iconName as any}
+        size={30}
+        color="#4DB6AC"
+      />
+    );
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        
-        <Text style={styles.title}>Explorar</Text>
-        
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Pesquisar astros..."
-            placeholderTextColor="#888"
-            value={pesquisa}
-            onChangeText={setPesquisa}
-          />
-        </View>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.headerTitle}>Explorar</Text>
 
-        <View style={styles.filtersContainer}>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={categorias}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <TouchableOpacity 
-                style={[styles.filterButton, categoriaAtiva === item && styles.filterButtonActive]}
-                onPress={() => setCategoriaAtiva(item)}
-              >
-                <Text style={[styles.filterText, categoriaAtiva === item && styles.filterTextActive]}>
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-
-        <FlatList
-          data={astrosFiltrados}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <TouchableOpacity 
-              style={styles.astroCard}
-              onPress={() => router.push(`/astro/${item.id}`)}
-            >
-              <Image source={{ uri: item.imagemUrl }} style={styles.astroImage} />
-              <View style={styles.astroInfo}>
-                <Text style={styles.astroName}>{item.nome}</Text>
-                <Text style={styles.astroType}>{item.tipo}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="#888" />
-            </TouchableOpacity>
-          )}
+      <View style={styles.searchBar}>
+        <Ionicons name="search" size={20} color="#888" />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Pesquisar no universo..."
+          placeholderTextColor="#888"
+          value={search}
+          onChangeText={setSearch}
         />
       </View>
+
+      <View style={{ height: 50, marginBottom: 15 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.catContainer}
+        >
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[styles.catBtn, filter === cat && styles.catBtnActive]}
+              onPress={() => setFilter(cat)}
+            >
+              <Text
+                style={[
+                  styles.catBtnText,
+                  filter === cat && styles.catBtnTextActive,
+                ]}
+              >
+                {cat === "Galaxias"
+                  ? "Galáxias"
+                  : cat === "Constelacoes"
+                    ? "Constelações"
+                    : cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <FlatList
+        data={filteredData}
+        keyExtractor={(item) => `${item.categoria}-${item.id}`}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <Link href={`/${item.categoria}/${item.id}` as any} asChild>
+            <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+              {/* SUBSTITUIÇÃO DA IMAGEM PELO CONTAINER DE ÍCONE */}
+              <View style={styles.iconContainer}>
+                {renderAstroIcon(item.icon, item.categoria)}
+              </View>
+
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.nome}</Text>
+                <Text style={styles.cardSubtitle}>{item.tipo}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#4DB6AC" />
+            </TouchableOpacity>
+          </Link>
+        )}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#05050A', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
-  container: { flex: 1, padding: 20 },
-  title: { color: '#FFF', fontSize: 28, fontWeight: 'bold', marginBottom: 20, marginTop: 10 },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1A1A2E', borderRadius: 10, paddingHorizontal: 15, height: 50, marginBottom: 20 },
-  searchIcon: { marginRight: 10 },
-  searchInput: { flex: 1, color: '#FFF', fontSize: 16 },
-  filtersContainer: { marginBottom: 20 },
-  filterButton: { paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, backgroundColor: '#1A1A2E', marginRight: 10 },
-  filterButtonActive: { backgroundColor: '#4DB6AC' },
-  filterText: { color: '#888', fontWeight: '600' },
-  filterTextActive: { color: '#05050A' },
-  astroCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1A1A2E', borderRadius: 15, padding: 15, marginBottom: 15 },
-  astroImage: { width: 50, height: 50, borderRadius: 25, marginRight: 15, backgroundColor: '#1A1A2E' },
-  astroInfo: { flex: 1 },
-  astroName: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
-  astroType: { color: '#4DB6AC', fontSize: 14, marginTop: 2 },
+  container: {
+    flex: 1,
+    backgroundColor: "#05050A",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  headerTitle: {
+    color: "#FFF",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  searchBar: {
+    flexDirection: "row",
+    backgroundColor: "#1A1A2E",
+    padding: 12,
+    borderRadius: 15,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  searchInput: { color: "#FFF", marginLeft: 10, flex: 1, fontSize: 16 },
+  catContainer: { paddingRight: 20 },
+  catBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    backgroundColor: "#1A1A2E",
+    marginRight: 10,
+    height: 40,
+    justifyContent: "center",
+  },
+  catBtnActive: { backgroundColor: "#4DB6AC" },
+  catBtnText: { color: "#888", fontWeight: "600" },
+  catBtnTextActive: { color: "#05050A" },
+  card: {
+    backgroundColor: "#1A1A2E",
+    borderRadius: 15,
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#222",
+  },
+
+  // Estilo para o lugar onde ficava a imagem
+  iconContainer: {
+    width: 55,
+    height: 55,
+    borderRadius: 12,
+    backgroundColor: "rgba(77, 182, 172, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  cardContent: { flex: 1, marginLeft: 15 },
+  cardTitle: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
+  cardSubtitle: { color: "#4DB6AC", fontSize: 13, marginTop: 2 },
 });
