@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const planetasData: Record<string, any> = {
@@ -78,6 +78,18 @@ const planetasData: Record<string, any> = {
   },
 };
 
+// IDs fixos da NASA — garante a imagem correta para cada planeta
+const NASA_FIXED_IDS: Record<string, string> = {
+  mercurio: "PIA15162",
+  venus: "PIA00271",
+  terra: "GSFC_20171208_Archive_e001589",
+  marte: "PIA00407",
+  jupiter: "PIA21775",
+  saturno: "PIA17172",
+  urano: "PIA18182",
+  netuno: "PIA01492",
+};
+
 export default function Detail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -85,31 +97,54 @@ export default function Detail() {
   const [nasaImage, setNasaImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // SUA KEY DA NASA
   const NASA_API_KEY = "cpbdC3dZ268gOVortguzZgqUfbKGDodrnV4rYO68";
-
   const item = planetasData[id as string] || planetasData.mercurio;
 
   useEffect(() => {
     const fetchNasaImage = async () => {
       setLoading(true);
       try {
-        // 1. MAPEAMENTO DE BUSCA REFINADA (Termos que a NASA entende perfeitamente)
+        const nasaId = NASA_FIXED_IDS[id as string];
+
+        if (nasaId) {
+          // Busca o manifesto do asset para pegar a imagem em alta resolução
+          const assetRes = await fetch(
+            `https://images-api.nasa.gov/asset/${nasaId}`,
+          );
+          const assetData = await assetRes.json();
+
+          const items: string[] = assetData.collection.items.map(
+            (i: any) => i.href,
+          );
+
+          // Prioriza imagem original ou grande
+          const largeImg =
+            items.find((href) => href.includes("~orig.")) ||
+            items.find((href) => href.includes("~large.")) ||
+            items.find(
+              (href) => href.endsWith(".jpg") || href.endsWith(".png"),
+            ) ||
+            items[0];
+
+          if (largeImg) {
+            setNasaImage(largeImg.replace(/^http:\/\//i, "https://"));
+            return;
+          }
+        }
+
+        // Fallback: busca por texto caso o ID fixo falhe
         const searchTerms: Record<string, string> = {
           mercurio: "Mercury planet Messenger mission global",
           venus: "Venus planet global view Magellan",
           terra: "Earth Blue Marble Apollo 17",
           marte: "Mars planet global view",
           jupiter: "Jupiter planet Juno mission",
-          saturno: "Saturno planet Cassini mission rings",
+          saturno: "Saturn planet Cassini mission rings",
           urano: "Uranus planet Voyager 2",
           netuno: "Neptune planet Voyager 2",
         };
 
-        // Seleciona o termo baseado no ID ou usa um padrão
         const searchTerm = searchTerms[id as string] || `${id} planet globe`;
-
-        // 2. URL COM FILTROS DE QUALIDADE
         const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
           searchTerm,
         )}&media_type=image&description=planet`;
@@ -118,17 +153,37 @@ export default function Detail() {
         const data = await response.json();
 
         if (data.collection.items.length > 0) {
-          // 3. SELEÇÃO INTELIGENTE
           const items = data.collection.items;
-
-          // Tentamos encontrar uma imagem que tenha 'planet' na descrição para evitar lixo
           const bestImage =
             items.find((i: any) =>
               i.data[0].description?.toLowerCase().includes("planet"),
             ) || items[0];
 
-          const imageUrl = bestImage.links[0].href;
-          setNasaImage(imageUrl);
+          // Tenta pegar versão grande pelo ID
+          try {
+            const nasaIdFromSearch = bestImage.data[0].nasa_id;
+            const assetRes2 = await fetch(
+              `https://images-api.nasa.gov/asset/${nasaIdFromSearch}`,
+            );
+            const assetData2 = await assetRes2.json();
+            const items2: string[] = assetData2.collection.items.map(
+              (i: any) => i.href,
+            );
+            const largeImg2 =
+              items2.find((href) => href.includes("~orig.")) ||
+              items2.find((href) => href.includes("~large.")) ||
+              items2.find((href) => href.endsWith(".jpg")) ||
+              items2[0];
+
+            if (largeImg2) {
+              setNasaImage(largeImg2.replace(/^http:\/\//i, "https://"));
+              return;
+            }
+          } catch (_) {}
+
+          // Último recurso: thumbnail da busca
+          const thumb = bestImage.links?.[0]?.href;
+          if (thumb) setNasaImage(thumb.replace(/^http:\/\//i, "https://"));
         }
       } catch (error) {
         console.error("Erro ao buscar imagem da NASA:", error);
@@ -155,11 +210,7 @@ export default function Detail() {
               style={styles.loader}
             />
           ) : (
-            <Image
-              source={{ uri: nasaImage || "https://via.placeholder.com/800" }}
-              style={styles.image}
-              resizeMode="cover"
-            />
+            <SafeNasaImage uri={nasaImage} style={styles.image} />
           )}
         </View>
 
@@ -241,3 +292,26 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
+
+// COMPONENTE BLINDADO DE IMAGEM — evita tela preta
+const SafeNasaImage = ({ uri, style }: { uri: string | null; style: any }) => {
+  const [imageError, setImageError] = React.useState(false);
+
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80";
+
+  const secureUri = uri
+    ? uri.replace(/^http:\/\//i, "https://")
+    : fallbackImage;
+
+  const finalUri = imageError || !uri ? fallbackImage : secureUri;
+
+  return (
+    <Image
+      source={{ uri: finalUri }}
+      style={style}
+      resizeMode="cover"
+      onError={() => setImageError(true)}
+    />
+  );
+};

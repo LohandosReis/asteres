@@ -1,4 +1,4 @@
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"; // Importação dos ícones
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -12,7 +12,6 @@ import {
   View,
 } from "react-native";
 
-// 1. BANCO DE DADOS USANDO NOMES DE ÍCONES (ICON NAME)
 const allAstros = [
   // PLANETAS
   {
@@ -75,6 +74,27 @@ const allAstros = [
   // LUAS
   { id: "lua", nome: "Lua", tipo: "Satélite", categoria: "luas", icon: "moon" },
   {
+    id: "fobos",
+    nome: "Fobos",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "deimos",
+    nome: "Deimos",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "io",
+    nome: "Io",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "flame-outline",
+  },
+  {
     id: "europa",
     nome: "Europa",
     tipo: "Satélite",
@@ -82,11 +102,88 @@ const allAstros = [
     icon: "snow-outline",
   },
   {
+    id: "ganimedes",
+    nome: "Ganimedes",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "planet-outline",
+  },
+  {
+    id: "calisto",
+    nome: "Calisto",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "planet-outline",
+  },
+  {
     id: "tita",
     nome: "Titã",
     tipo: "Satélite",
     categoria: "luas",
     icon: "cloud-outline",
+  },
+  {
+    id: "encelado",
+    nome: "Encélado",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "water-outline",
+  },
+  {
+    id: "mimas",
+    nome: "Mimas",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "dione",
+    nome: "Dione",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "reia",
+    nome: "Reia",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "tetis",
+    nome: "Tétis",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "miranda",
+    nome: "Miranda",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "ariel",
+    nome: "Ariel",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "titania",
+    nome: "Titânia",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "moon-outline",
+  },
+  {
+    id: "tritao",
+    nome: "Tritão",
+    tipo: "Satélite",
+    categoria: "luas",
+    icon: "snow-outline",
   },
 
   // NEBULOSAS
@@ -119,6 +216,62 @@ const allAstros = [
     tipo: "Galáxia",
     categoria: "galaxias",
     icon: "milky-way",
+  },
+  {
+    id: "sombrero",
+    nome: "Sombrero (M104)",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "orbit",
+  },
+  {
+    id: "redemoinho",
+    nome: "Redemoinho (M51)",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "rotate-3d-variant",
+  },
+  {
+    id: "triangulo",
+    nome: "Triângulo (M33)",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "triangle-outline",
+  },
+  {
+    id: "centauroA",
+    nome: "Centaurus A",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "radioactive",
+  },
+  {
+    id: "magalhaesgr",
+    nome: "Grande Nuvem de Magalhães",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "cloud-outline",
+  },
+  {
+    id: "magalhaespq",
+    nome: "Pequena Nuvem de Magalhães",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "cloud-outline",
+  },
+  {
+    id: "m87",
+    nome: "Galáxia M87",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "circle-double",
+  },
+  {
+    id: "pinwheel",
+    nome: "Pinwheel (M101)",
+    tipo: "Galáxia",
+    categoria: "galaxias",
+    icon: "pinwheel-outline",
   },
 
   // CONSTELAÇÕES
@@ -160,7 +313,6 @@ export default function ExploreScreen() {
     "Constelacoes",
   ];
 
-  // FUNÇÃO PARA RENDERIZAR O ÍCONE CORRETO BASEADO NA CATEGORIA OU NOME
   const renderAstroIcon = (iconName: string, category: string) => {
     if (category === "planetas" || category === "luas") {
       return <Ionicons name={iconName as any} size={30} color="#4DB6AC" />;
@@ -225,11 +377,9 @@ export default function ExploreScreen() {
         renderItem={({ item }) => (
           <Link href={`/${item.categoria}/${item.id}` as any} asChild>
             <TouchableOpacity style={styles.card} activeOpacity={0.7}>
-              {/* SUBSTITUIÇÃO DA IMAGEM PELO CONTAINER DE ÍCONE */}
               <View style={styles.iconContainer}>
                 {renderAstroIcon(item.icon, item.categoria)}
               </View>
-
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{item.nome}</Text>
                 <Text style={styles.cardSubtitle}>{item.tipo}</Text>
@@ -288,8 +438,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#222",
   },
-
-  // Estilo para o lugar onde ficava a imagem
   iconContainer: {
     width: 55,
     height: 55,
@@ -298,7 +446,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   cardContent: { flex: 1, marginLeft: 15 },
   cardTitle: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
   cardSubtitle: { color: "#4DB6AC", fontSize: 13, marginTop: 2 },

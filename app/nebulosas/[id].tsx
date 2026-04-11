@@ -13,67 +13,22 @@ import {
 } from "react-native";
 
 const planetasData: Record<string, any> = {
-  mercurio: {
-    nome: "Mercúrio",
-    tipo: "Planeta Rochoso",
-    desc: "O menor planeta do sistema solar e o mais próximo do Sol.",
-    curiosidades: ["Não tem luas.", "Um ano dura apenas 88 dias terrestres."],
-  },
-  venus: {
-    nome: "Vênus",
-    tipo: "Planeta Rochoso",
-    desc: "O planeta mais quente do sistema solar devido ao efeito estufa.",
+  orion: {
+    nome: "Nebulosa de Órion",
+    tipo: "Nebulosa de Emissão",
+    desc: "Uma das nebulosas mais famosas e visíveis a olho nu, localizada a 1.344 anos-luz da Terra.",
     curiosidades: [
-      "Gira no sentido horário.",
-      "Pressão atmosférica 90x maior que a da Terra.",
+      "É uma das regiões de formação estelar mais estudadas.",
+      "Tem cerca de 24 anos-luz de diâmetro.",
     ],
   },
-  terra: {
-    nome: "Terra",
-    tipo: "Planeta Rochoso",
-    desc: "Nosso lar, o único lugar conhecido no universo com vida.",
+  carina: {
+    nome: "Nebulosa de Carina",
+    tipo: "Nebulosa de Emissão e Reflexão",
+    desc: "Uma das maiores e mais brilhantes nebulosas do céu, lar de algumas das estrelas mais massivas conhecidas.",
     curiosidades: [
-      "71% de sua superfície é água.",
-      "Possui um campo magnético protetor.",
-    ],
-  },
-  marte: {
-    nome: "Marte",
-    tipo: "Planeta Rochoso",
-    desc: "O planeta vermelho, lar do maior vulcão do sistema solar.",
-    curiosidades: ["Tem gelo nos polos.", "A atmosfera é composta 95% de CO2."],
-  },
-  jupiter: {
-    nome: "Júpiter",
-    tipo: "Gigante Gasoso",
-    desc: "O maior planeta, com uma massa duas vezes maior que todos os outros juntos.",
-    curiosidades: [
-      "Tem 95 luas.",
-      "A Grande Mancha Vermelha é uma tempestade gigante.",
-    ],
-  },
-  saturno: {
-    nome: "Saturno",
-    tipo: "Gigante Gasoso",
-    desc: "Famoso por seu espetacular sistema de anéis de gelo e rocha.",
-    curiosidades: [
-      "Flutuaria se houvesse um oceano grande o suficiente.",
-      "A lua Titã tem atmosfera densa.",
-    ],
-  },
-  urano: {
-    nome: "Urano",
-    tipo: "Gigante de Gelo",
-    desc: "Um gigante gelado que orbita o sol de lado.",
-    curiosidades: ["A temperatura cai para -224°C.", "Tem 27 luas conhecidas."],
-  },
-  netuno: {
-    nome: "Netuno",
-    tipo: "Gigante de Gelo",
-    desc: "O planeta mais distante do Sol, conhecido por seus ventos fortes.",
-    curiosidades: [
-      "Ventos chegam a 2.100 km/h.",
-      "Sua cor azul vem do metano.",
+      "É quatro vezes maior que a Nebulosa de Órion.",
+      "Contém a hipergigante Eta Carinae, uma das estrelas mais luminosas da galáxia.",
     ],
   },
 };
@@ -86,27 +41,21 @@ export default function Detail() {
   const [loading, setLoading] = useState(true);
 
   const NASA_API_KEY = "cpbdC3dZ268gOVortguzZgqUfbKGDodrnV4rYO68";
-  const item = planetasData[id as string] || planetasData.mercurio;
+  const item = planetasData[id as string] || planetasData.orion;
 
   useEffect(() => {
     const fetchNasaImage = async () => {
       setLoading(true);
       try {
         const searchTerms: Record<string, string> = {
-          mercurio: "Mercury planet Messenger mission global",
-          venus: "Venus planet global view Magellan",
-          terra: "Earth Blue Marble Apollo 17",
-          marte: "Mars planet global view",
-          jupiter: "Jupiter planet Juno mission",
-          saturno: "Saturno planet Cassini mission rings",
-          urano: "Uranus planet Voyager 2",
-          netuno: "Neptune planet Voyager 2",
+          orion: "Orion Nebula Hubble Space Telescope",
+          carina: "Carina Nebula Hubble James Webb",
         };
 
-        const searchTerm = searchTerms[id as string] || `${id} planet globe`;
+        const searchTerm = searchTerms[id as string] || `${id} nebula`;
         const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
           searchTerm,
-        )}&media_type=image&description=planet`;
+        )}&media_type=image`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -115,7 +64,7 @@ export default function Detail() {
           const items = data.collection.items;
           const bestImage =
             items.find((i: any) =>
-              i.data[0].description?.toLowerCase().includes("planet"),
+              i.data[0].description?.toLowerCase().includes("nebula"),
             ) || items[0];
 
           const imageUrl = bestImage.links[0].href;

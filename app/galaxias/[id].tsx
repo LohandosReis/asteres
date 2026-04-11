@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const galaxiasData: Record<string, any> = {
@@ -33,6 +33,114 @@ const galaxiasData: Record<string, any> = {
       "Contém entre 100 e 400 bilhões de estrelas.",
     ],
   },
+  sombrero: {
+    nome: "Galáxia Sombrero (M104)",
+    tipo: "Galáxia Espiral",
+    desc: "Uma das galáxias mais fotogênicas do universo, com um bojo central brilhante e uma faixa de poeira escura que lembra um chapéu mexicano.",
+    curiosidades: [
+      "Está a 28 milhões de anos-luz da Terra.",
+      "Tem um buraco negro supermassivo no centro.",
+      "É uma das galáxias mais luminosas próximas a nós.",
+    ],
+  },
+  redemoinho: {
+    nome: "Galáxia Redemoinho (M51)",
+    tipo: "Galáxia Espiral",
+    desc: "Uma galáxia espiral interagindo com sua companheira NGC 5195. Foi a primeira galáxia a ter sua estrutura espiral identificada.",
+    curiosidades: [
+      "Está a cerca de 23 milhões de anos-luz.",
+      "Interage gravitacionalmente com NGC 5195.",
+      "Tem intensas regiões de formação estelar.",
+    ],
+  },
+  triangulo: {
+    nome: "Galáxia do Triângulo (M33)",
+    tipo: "Galáxia Espiral",
+    desc: "A terceira maior galáxia do Grupo Local, depois da Via Láctea e Andrômeda. Possui regiões de formação estelar muito ativas.",
+    curiosidades: [
+      "Está a 2,7 milhões de anos-luz.",
+      "Contém cerca de 40 bilhões de estrelas.",
+      "É um dos objetos mais distantes visíveis a olho nu.",
+    ],
+  },
+  centauroA: {
+    nome: "Centaurus A (NGC 5128)",
+    tipo: "Galáxia Elíptica",
+    desc: "Uma das galáxias mais estudadas do céu, famosa por seu jato relativístico emitido pelo buraco negro central.",
+    curiosidades: [
+      "Está a apenas 13 milhões de anos-luz.",
+      "Emite fortíssimas ondas de rádio.",
+      "Seu buraco negro tem 55 milhões de massas solares.",
+    ],
+  },
+  magalhaesgr: {
+    nome: "Grande Nuvem de Magalhães",
+    tipo: "Galáxia Irregular",
+    desc: "Uma galáxia satélite da Via Láctea, visível a olho nu no hemisfério sul. É um laboratório natural para o estudo da formação estelar.",
+    curiosidades: [
+      "Está a apenas 160 mil anos-luz.",
+      "Contém a Nebulosa da Tarântula, a maior região HII conhecida.",
+      "Orbita a Via Láctea junto com a Pequena Nuvem.",
+    ],
+  },
+  magalhaespq: {
+    nome: "Pequena Nuvem de Magalhães",
+    tipo: "Galáxia Irregular",
+    desc: "Uma galáxia anã satélite da Via Láctea, visível no hemisfério sul. Tem intensa atividade de formação de novas estrelas.",
+    curiosidades: [
+      "Está a cerca de 200 mil anos-luz.",
+      "Contém algumas das estrelas mais brilhantes conhecidas.",
+      "Interage gravitacionalmente com a Grande Nuvem.",
+    ],
+  },
+  m87: {
+    nome: "Galáxia M87",
+    tipo: "Galáxia Elíptica Gigante",
+    desc: "Uma das maiores galáxias conhecidas, famosa por abrigar o primeiro buraco negro já fotografado pela humanidade.",
+    curiosidades: [
+      "Seu buraco negro tem 6,5 bilhões de massas solares.",
+      "Foi o primeiro buraco negro fotografado, em 2019.",
+      "Emite um jato de plasma que se estende por 5.000 anos-luz.",
+    ],
+  },
+  pinwheel: {
+    nome: "Galáxia Pinwheel (M101)",
+    tipo: "Galáxia Espiral",
+    desc: "Uma galáxia espiral frontal com braços bem definidos, repleta de regiões de formação estelar coloridas e brilhantes.",
+    curiosidades: [
+      "Está a 21 milhões de anos-luz.",
+      "Tem o dobro do diâmetro da Via Láctea.",
+      "Foi fotografada em detalhe pelo Telescópio Hubble.",
+    ],
+  },
+};
+
+// IDs fixos da NASA — garante a imagem correta para cada galáxia
+const NASA_FIXED_IDS: Record<string, string> = {
+  andromeda: "PIA15415",
+  vialactea: "GSFC_20171208_Archive_e001386",
+  sombrero: "PIA04921",
+  redemoinho: "GSFC_20171208_Archive_e000441",
+  triangulo: "GSFC_20171208_Archive_e000885",
+  centauroA: "GSFC_20171208_Archive_e000038",
+  magalhaesgr: "PIA04228",
+  magalhaespq: "GSFC_20171208_Archive_e002188",
+  m87: "GSFC_20171208_Archive_e000649",
+  pinwheel: "GSFC_20171208_Archive_e000034",
+};
+
+// Termos de busca como fallback
+const SEARCH_TERMS: Record<string, string> = {
+  andromeda: "Andromeda galaxy M31 Hubble",
+  vialactea: "Milky Way galaxy galactic center",
+  sombrero: "Sombrero galaxy M104 Hubble",
+  redemoinho: "Whirlpool galaxy M51 Hubble",
+  triangulo: "Triangulum galaxy M33 Hubble",
+  centauroA: "Centaurus A galaxy NGC 5128",
+  magalhaesgr: "Large Magellanic Cloud galaxy",
+  magalhaespq: "Small Magellanic Cloud galaxy",
+  m87: "M87 galaxy elliptical Virgo",
+  pinwheel: "Pinwheel galaxy M101 Hubble",
 };
 
 export default function GalaxiaDetail() {
@@ -42,26 +150,42 @@ export default function GalaxiaDetail() {
   const [nasaImage, setNasaImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // SUA KEY DA NASA
   const NASA_API_KEY = "cpbdC3dZ268gOVortguzZgqUfbKGDodrnV4rYO68";
-
-  const item = galaxiasData[id as string] || galaxiasData.vialactea;
+  const item = galaxiasData[id as string] || galaxiasData.andromeda;
 
   useEffect(() => {
     const fetchNasaImage = async () => {
       setLoading(true);
       try {
-        // 1. MAPEAMENTO DE BUSCA PARA GALÁXIAS
-        // A NASA cataloga as galáxias pelos seus nomes em inglês ou catálogos (como M31)
-        const searchTerms: Record<string, string> = {
-          andromeda: "Andromeda galaxy M31",
-          vialactea: "Milky Way galaxy galactic center",
-        };
+        const nasaId = NASA_FIXED_IDS[id as string];
 
-        // Usa o termo mapeado ou um padrão se a galáxia não estiver na lista
-        const searchTerm = searchTerms[id as string] || `${id} galaxy`;
+        if (nasaId) {
+          // Busca o manifesto para pegar imagem em alta resolução
+          const assetRes = await fetch(
+            `https://images-api.nasa.gov/asset/${nasaId}`,
+          );
+          const assetData = await assetRes.json();
 
-        // 2. URL DE BUSCA
+          const items: string[] = assetData.collection.items.map(
+            (i: any) => i.href,
+          );
+
+          const largeImg =
+            items.find((href) => href.includes("~orig.")) ||
+            items.find((href) => href.includes("~large.")) ||
+            items.find(
+              (href) => href.endsWith(".jpg") || href.endsWith(".png"),
+            ) ||
+            items[0];
+
+          if (largeImg) {
+            setNasaImage(largeImg.replace(/^http:\/\//i, "https://"));
+            return;
+          }
+        }
+
+        // Fallback: busca por texto
+        const searchTerm = SEARCH_TERMS[id as string] || `${id} galaxy`;
         const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
           searchTerm,
         )}&media_type=image`;
@@ -70,19 +194,32 @@ export default function GalaxiaDetail() {
         const data = await response.json();
 
         if (data.collection.items.length > 0) {
-          // 3. SELEÇÃO DA IMAGEM
-          const items = data.collection.items;
+          const firstItem = data.collection.items[0];
 
-          // Tentamos achar uma imagem que mencione "galaxy" para evitar fotos irrelevantes
-          const bestImage =
-            items.find(
-              (i: any) =>
-                i.data[0].description?.toLowerCase().includes("galaxy") ||
-                i.data[0].title?.toLowerCase().includes("galaxy"),
-            ) || items[0];
+          try {
+            const nasaIdFromSearch = firstItem.data[0].nasa_id;
+            const assetRes2 = await fetch(
+              `https://images-api.nasa.gov/asset/${nasaIdFromSearch}`,
+            );
+            const assetData2 = await assetRes2.json();
+            const items2: string[] = assetData2.collection.items.map(
+              (i: any) => i.href,
+            );
+            const largeImg2 =
+              items2.find((href) => href.includes("~orig.")) ||
+              items2.find((href) => href.includes("~large.")) ||
+              items2.find((href) => href.endsWith(".jpg")) ||
+              items2[0];
 
-          const imageUrl = bestImage.links[0].href;
-          setNasaImage(imageUrl);
+            if (largeImg2) {
+              setNasaImage(largeImg2.replace(/^http:\/\//i, "https://"));
+              return;
+            }
+          } catch (_) {}
+
+          // Último recurso: thumbnail
+          const thumb = firstItem.links?.[0]?.href;
+          if (thumb) setNasaImage(thumb.replace(/^http:\/\//i, "https://"));
         }
       } catch (error) {
         console.error("Erro ao buscar imagem da NASA:", error);
@@ -109,11 +246,7 @@ export default function GalaxiaDetail() {
               style={styles.loader}
             />
           ) : (
-            <Image
-              source={{ uri: nasaImage || "https://via.placeholder.com/800" }}
-              style={styles.image}
-              resizeMode="cover"
-            />
+            <SafeNasaImage uri={nasaImage} style={styles.image} />
           )}
         </View>
 
@@ -195,3 +328,26 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
+
+// COMPONENTE BLINDADO DE IMAGEM — evita tela preta
+const SafeNasaImage = ({ uri, style }: { uri: string | null; style: any }) => {
+  const [imageError, setImageError] = React.useState(false);
+
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1200&q=80";
+
+  const secureUri = uri
+    ? uri.replace(/^http:\/\//i, "https://")
+    : fallbackImage;
+
+  const finalUri = imageError || !uri ? fallbackImage : secureUri;
+
+  return (
+    <Image
+      source={{ uri: finalUri }}
+      style={style}
+      resizeMode="cover"
+      onError={() => setImageError(true)}
+    />
+  );
+};

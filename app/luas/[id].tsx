@@ -2,17 +2,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-// BANCO DE DADOS DAS LUAS MAIS IMPORTANTES
 const luasData: Record<string, any> = {
   lua: {
     nome: "A Lua",
@@ -32,6 +31,26 @@ const luasData: Record<string, any> = {
       "Orbita Marte três vezes ao dia.",
       "Está colidindo lentamente com Marte.",
       "Pode se tornar um anel no futuro.",
+    ],
+  },
+  deimos: {
+    nome: "Deimos",
+    tipo: "Lua de Marte",
+    desc: "A menor das duas luas de Marte. É um dos menores satélites conhecidos do sistema solar.",
+    curiosidades: [
+      "Leva 30 horas para orbitar Marte.",
+      "Superfície coberta por poeira fina.",
+      "Provavelmente um asteroide capturado.",
+    ],
+  },
+  io: {
+    nome: "Io",
+    tipo: "Lua de Júpiter",
+    desc: "O corpo geologicamente mais ativo do sistema solar, coberto por centenas de vulcões em erupção constante.",
+    curiosidades: [
+      "Possui vulcões que ejetam enxofre.",
+      "Sua superfície é renovada constantemente.",
+      "A gravidade de Júpiter gera calor interno intenso.",
     ],
   },
   europa: {
@@ -54,6 +73,16 @@ const luasData: Record<string, any> = {
       "Possui uma fina atmosfera de oxigênio.",
     ],
   },
+  calisto: {
+    nome: "Calisto",
+    tipo: "Lua de Júpiter",
+    desc: "A lua mais externa das quatro grandes luas de Júpiter. Possui a superfície mais craterizada do sistema solar.",
+    curiosidades: [
+      "Tem aproximadamente o tamanho de Mercúrio.",
+      "Provavelmente tem um oceano subterrâneo.",
+      "É uma das luas mais antigas do sistema solar.",
+    ],
+  },
   tita: {
     nome: "Titã",
     tipo: "Lua de Saturno",
@@ -74,6 +103,76 @@ const luasData: Record<string, any> = {
       "Tem um oceano global sob a crosta.",
     ],
   },
+  mimas: {
+    nome: "Mimas",
+    tipo: "Lua de Saturno",
+    desc: "Conhecida como a 'Estrela da Morte' por sua semelhança com a nave de Star Wars, devido à enorme cratera Herschel.",
+    curiosidades: [
+      "A cratera Herschel tem 130 km de diâmetro.",
+      "É uma das menores luas esféricas do sistema solar.",
+      "Pode ter um oceano líquido interno.",
+    ],
+  },
+  dione: {
+    nome: "Dione",
+    tipo: "Lua de Saturno",
+    desc: "Uma lua gelada de Saturno com penhascos de gelo brilhantes e uma possível atmosfera tênue de oxigênio.",
+    curiosidades: [
+      "Tem falésias de gelo com centenas de km.",
+      "Compartilha sua órbita com luas menores.",
+      "Foi fotografada de perto pela sonda Cassini.",
+    ],
+  },
+  reia: {
+    nome: "Reia",
+    tipo: "Lua de Saturno",
+    desc: "A segunda maior lua de Saturno, composta principalmente de gelo e rocha.",
+    curiosidades: [
+      "Pode ter um sistema tênue de anéis.",
+      "Sua superfície é densamente craterizada.",
+      "Tem uma fraca atmosfera de oxigênio e CO2.",
+    ],
+  },
+  tetis: {
+    nome: "Tétis",
+    tipo: "Lua de Saturno",
+    desc: "Uma lua gelada de Saturno com um enorme canyon chamado Ithaca Chasma que percorre quase todo o globo.",
+    curiosidades: [
+      "Ithaca Chasma tem 2.000 km de extensão.",
+      "Sua superfície é quase inteiramente de gelo.",
+      "Tem uma grande cratera chamada Odisseu.",
+    ],
+  },
+  miranda: {
+    nome: "Miranda",
+    tipo: "Lua de Urano",
+    desc: "A menor das cinco principais luas de Urano, com uma paisagem caótica e penhascos gigantescos.",
+    curiosidades: [
+      "Tem o maior penhasco conhecido do sistema solar.",
+      "Verona Rupes tem 20 km de altura.",
+      "Fotografada pela Voyager 2 em 1986.",
+    ],
+  },
+  ariel: {
+    nome: "Ariel",
+    tipo: "Lua de Urano",
+    desc: "A lua de Urano com a superfície mais jovem e brilhante, coberta por vales e ravinas.",
+    curiosidades: [
+      "Tem muitos vales profundos e falhas.",
+      "Possui a superfície mais clara de Urano.",
+      "Sugere atividade geológica recente.",
+    ],
+  },
+  titania: {
+    nome: "Titânia",
+    tipo: "Lua de Urano",
+    desc: "A maior lua de Urano, com uma superfície marcada por grandes canyons e crateras de impacto.",
+    curiosidades: [
+      "É a oitava maior lua do sistema solar.",
+      "Tem canyons com centenas de km.",
+      "Pode ter um oceano interno.",
+    ],
+  },
   tritao: {
     nome: "Tritão",
     tipo: "Lua de Netuno",
@@ -86,6 +185,46 @@ const luasData: Record<string, any> = {
   },
 };
 
+const NASA_FIXED_IDS: Record<string, string> = {
+  lua: "PIA14011", // ✅ Lua — LRO full Moon
+  fobos: "PIA10368",
+  deimos: "PIA11826",
+  io: "PIA00583",
+  europa: "PIA19048",
+  ganimedes: "PIA00716",
+  calisto: "PIA01299", // ✅ Calisto — Galileo global view
+  tita: "PIA14921",
+  encelado: "PIA17202",
+  mimas: "PIA12568",
+  dione: "PIA18317",
+  reia: "PIA07763",
+  tetis: "PIA17164",
+  miranda: "PIA18185", // ✅ Miranda — Voyager 2
+  ariel: "PIA00041",
+  titania: "PIA00039",
+  tritao: "PIA00317",
+};
+
+const SEARCH_TERMS: Record<string, string> = {
+  lua: "Moon full globe Lunar Reconnaissance Orbiter",
+  fobos: "Phobos moon Mars",
+  deimos: "Deimos moon Mars",
+  io: "Io moon Jupiter volcanic",
+  europa: "Europa moon Jupiter global",
+  ganimedes: "Ganymede moon Jupiter global",
+  calisto: "Callisto moon Jupiter global",
+  tita: "Titan moon Saturn Cassini",
+  encelado: "Enceladus moon Saturn",
+  mimas: "Mimas moon Saturn Cassini",
+  dione: "Dione moon Saturn Cassini",
+  reia: "Rhea moon Saturn Cassini",
+  tetis: "Tethys moon Saturn Cassini",
+  miranda: "Miranda moon Uranus Voyager",
+  ariel: "Ariel moon Uranus Voyager",
+  titania: "Titania moon Uranus Voyager",
+  tritao: "Triton moon Neptune Voyager",
+};
+
 export default function LuaDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -93,29 +232,41 @@ export default function LuaDetail() {
   const [nasaImage, setNasaImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // SUA KEY DA NASA
   const NASA_API_KEY = "cpbdC3dZ268gOVortguzZgqUfbKGDodrnV4rYO68";
-
   const item = luasData[id as string] || luasData.lua;
 
   useEffect(() => {
     const fetchNasaImage = async () => {
       setLoading(true);
       try {
-        // 1. MAPEAMENTO DE BUSCA PARA LUAS
-        const searchTerms: Record<string, string> = {
-          lua: "Earth moon full globe high resolution",
-          fobos: "Phobos moon Mars high resolution",
-          europa: "Europa moon Jupiter global view",
-          ganimedes: "Ganymede moon Jupiter global",
-          tita: "Titan moon Saturn Cassini global",
-          encelado: "Enceladus moon Saturn Cassini global",
-          tritao: "Triton moon Neptune Voyager 2",
-        };
+        const nasaId = NASA_FIXED_IDS[id as string];
 
-        const searchTerm = searchTerms[id as string] || `${id} moon`;
+        if (nasaId) {
+          const assetRes = await fetch(
+            `https://images-api.nasa.gov/asset/${nasaId}`,
+          );
+          const assetData = await assetRes.json();
 
-        // 2. URL DE BUSCA
+          const items: string[] = assetData.collection.items.map(
+            (i: any) => i.href,
+          );
+
+          const largeImg =
+            items.find((href) => href.includes("~orig.")) ||
+            items.find((href) => href.includes("~large.")) ||
+            items.find(
+              (href) => href.endsWith(".jpg") || href.endsWith(".png"),
+            ) ||
+            items[0];
+
+          if (largeImg) {
+            setNasaImage(largeImg.replace(/^http:\/\//i, "https://"));
+            return;
+          }
+        }
+
+        // Fallback: busca por texto
+        const searchTerm = SEARCH_TERMS[id as string] || `${id} moon`;
         const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
           searchTerm,
         )}&media_type=image`;
@@ -124,19 +275,31 @@ export default function LuaDetail() {
         const data = await response.json();
 
         if (data.collection.items.length > 0) {
-          // 3. SELEÇÃO DA IMAGEM
-          const items = data.collection.items;
+          const firstItem = data.collection.items[0];
 
-          // Filtro simples para garantir que a imagem contenha menção à lua
-          const bestImage =
-            items.find(
-              (i: any) =>
-                i.data[0].description?.toLowerCase().includes("moon") ||
-                i.data[0].title?.toLowerCase().includes("moon"),
-            ) || items[0];
+          try {
+            const nasaIdFromSearch = firstItem.data[0].nasa_id;
+            const assetRes2 = await fetch(
+              `https://images-api.nasa.gov/asset/${nasaIdFromSearch}`,
+            );
+            const assetData2 = await assetRes2.json();
+            const items2: string[] = assetData2.collection.items.map(
+              (i: any) => i.href,
+            );
+            const largeImg2 =
+              items2.find((href) => href.includes("~orig.")) ||
+              items2.find((href) => href.includes("~large.")) ||
+              items2.find((href) => href.endsWith(".jpg")) ||
+              items2[0];
 
-          const imageUrl = bestImage.links[0].href;
-          setNasaImage(imageUrl);
+            if (largeImg2) {
+              setNasaImage(largeImg2.replace(/^http:\/\//i, "https://"));
+              return;
+            }
+          } catch (_) {}
+
+          const thumb = firstItem.links?.[0]?.href;
+          if (thumb) setNasaImage(thumb.replace(/^http:\/\//i, "https://"));
         }
       } catch (error) {
         console.error("Erro ao buscar imagem da NASA:", error);
@@ -163,11 +326,7 @@ export default function LuaDetail() {
               style={styles.loader}
             />
           ) : (
-            <Image
-              source={{ uri: nasaImage || "https://via.placeholder.com/800" }}
-              style={styles.image}
-              resizeMode="cover"
-            />
+            <SafeNasaImage uri={nasaImage} style={styles.image} />
           )}
         </View>
 
@@ -260,3 +419,25 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+const SafeNasaImage = ({ uri, style }: { uri: string | null; style: any }) => {
+  const [imageError, setImageError] = React.useState(false);
+
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&q=80";
+
+  const secureUri = uri
+    ? uri.replace(/^http:\/\//i, "https://")
+    : fallbackImage;
+
+  const finalUri = imageError || !uri ? fallbackImage : secureUri;
+
+  return (
+    <Image
+      source={{ uri: finalUri }}
+      style={style}
+      resizeMode="cover"
+      onError={() => setImageError(true)}
+    />
+  );
+};
