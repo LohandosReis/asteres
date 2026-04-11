@@ -115,32 +115,32 @@ const galaxiasData: Record<string, any> = {
   },
 };
 
-// IDs fixos da NASA — garante a imagem correta para cada galáxia
+// IDs Corrigidos para apontar exatamente para a galáxia correta
 const NASA_FIXED_IDS: Record<string, string> = {
-  andromeda: "PIA15415",
-  vialactea: "GSFC_20171208_Archive_e001386",
-  sombrero: "PIA04921",
-  redemoinho: "GSFC_20171208_Archive_e000441",
-  triangulo: "GSFC_20171208_Archive_e000885",
-  centauroA: "GSFC_20171208_Archive_e000038",
-  magalhaesgr: "PIA04228",
-  magalhaespq: "GSFC_20171208_Archive_e002188",
-  m87: "GSFC_20171208_Archive_e000649",
-  pinwheel: "GSFC_20171208_Archive_e000034",
+  andromeda: "PIA04921", // Andromeda Galaxy
+  vialactea: "PIA18913", // Milky Way Untangled (melhor que o anterior)
+  sombrero: "PIA15426", // The Sombrero Galaxy Split Personality (melhor que o anterior)
+  redemoinho: "PIA04230", // Whirlpool Galaxy (melhor que o anterior)
+  triangulo: "PIA25165", // Triangulum Galaxy Imaged by Herschel, Planck, IRAS, COBE (melhor que o anterior)
+  centauroA: "PIA04624", // Galaxy Centaurus A (melhor que o anterior)
+  magalhaesgr: "iss071e418742", // The Large Magellanic Cloud and the Small Magellanic Cloud (imagem combinada)
+  magalhaespq: "iss071e418742", // The Large Magellanic Cloud and the Small Magellanic Cloud (imagem combinada)
+  m87: "PIA23122", // Spitzer Captures Messier 87 (melhor que o anterior)
+  pinwheel: "PIA14403", // M 101: The Pinwheel Galaxy (melhor que o anterior)
 };
 
-// Termos de busca como fallback
+// Termos de busca otimizados para a API da NASA (usando 'q=' para busca geral)
 const SEARCH_TERMS: Record<string, string> = {
-  andromeda: "Andromeda galaxy M31 Hubble",
-  vialactea: "Milky Way galaxy galactic center",
-  sombrero: "Sombrero galaxy M104 Hubble",
-  redemoinho: "Whirlpool galaxy M51 Hubble",
-  triangulo: "Triangulum galaxy M33 Hubble",
-  centauroA: "Centaurus A galaxy NGC 5128",
-  magalhaesgr: "Large Magellanic Cloud galaxy",
-  magalhaespq: "Small Magellanic Cloud galaxy",
-  m87: "M87 galaxy elliptical Virgo",
-  pinwheel: "Pinwheel galaxy M101 Hubble",
+  andromeda: "Andromeda Galaxy M31",
+  vialactea: "Milky Way Galaxy",
+  sombrero: "Sombrero Galaxy M104",
+  redemoinho: "Whirlpool Galaxy M51",
+  triangulo: "Triangulum Galaxy M33",
+  centauroA: "Centaurus A NGC 5128",
+  magalhaesgr: "Large Magellanic Cloud LMC",
+  magalhaespq: "Small Magellanic Cloud SMC",
+  m87: "M87 Galaxy Messier 87",
+  pinwheel: "Pinwheel Galaxy M101",
 };
 
 export default function GalaxiaDetail() {
@@ -150,6 +150,8 @@ export default function GalaxiaDetail() {
   const [nasaImage, setNasaImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // A chave de API não é estritamente necessária para buscas públicas de imagens,
+  // mas foi mantida caso você adicione outras rotas da NASA no futuro.
   const NASA_API_KEY = "cpbdC3dZ268gOVortguzZgqUfbKGDodrnV4rYO68";
   const item = galaxiasData[id as string] || galaxiasData.andromeda;
 
@@ -158,69 +160,81 @@ export default function GalaxiaDetail() {
       setLoading(true);
       try {
         const nasaId = NASA_FIXED_IDS[id as string];
+        let imageUrl = null;
 
         if (nasaId) {
-          // Busca o manifesto para pegar imagem em alta resolução
+          // Tenta buscar a imagem usando o ID fixo
           const assetRes = await fetch(
             `https://images-api.nasa.gov/asset/${nasaId}`,
           );
           const assetData = await assetRes.json();
 
-          const items: string[] = assetData.collection.items.map(
-            (i: any) => i.href,
-          );
+          if (assetData.collection && assetData.collection.items) {
+            const items: string[] = assetData.collection.items.map(
+              (i: any) => i.href,
+            );
 
-          const largeImg =
-            items.find((href) => href.includes("~orig.")) ||
-            items.find((href) => href.includes("~large.")) ||
-            items.find(
-              (href) => href.endsWith(".jpg") || href.endsWith(".png"),
-            ) ||
-            items[0];
+            const largeImg =
+              items.find((href) => href.includes("~orig.")) ||
+              items.find((href) => href.includes("~large.")) ||
+              items.find(
+                (href) => href.endsWith(".jpg") || href.endsWith(".png"),
+              ) ||
+              items[0];
 
-          if (largeImg) {
-            setNasaImage(largeImg.replace(/^http:\/\//i, "https://"));
-            return;
+            if (largeImg) {
+              imageUrl = largeImg.replace(/^http:\/\//i, "https://");
+            }
           }
         }
 
-        // Fallback: busca por texto
-        const searchTerm = SEARCH_TERMS[id as string] || `${id} galaxy`;
-        const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
-          searchTerm,
-        )}&media_type=image`;
+        if (!imageUrl) {
+          // Fallback: busca por texto usando termos otimizados
+          const searchTerm = SEARCH_TERMS[id as string] || `${id} galaxy`;
+          // Usar 'q=' para busca geral, que é mais flexível que 'title='
+          const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(
+            searchTerm,
+          )}&media_type=image`;
 
-        const response = await fetch(url);
-        const data = await response.json();
+          const response = await fetch(url);
+          const data = await response.json();
 
-        if (data.collection.items.length > 0) {
-          const firstItem = data.collection.items[0];
-
-          try {
+          if (data.collection && data.collection.items.length > 0) {
+            const firstItem = data.collection.items[0];
             const nasaIdFromSearch = firstItem.data[0].nasa_id;
-            const assetRes2 = await fetch(
-              `https://images-api.nasa.gov/asset/${nasaIdFromSearch}`,
-            );
-            const assetData2 = await assetRes2.json();
-            const items2: string[] = assetData2.collection.items.map(
-              (i: any) => i.href,
-            );
-            const largeImg2 =
-              items2.find((href) => href.includes("~orig.")) ||
-              items2.find((href) => href.includes("~large.")) ||
-              items2.find((href) => href.endsWith(".jpg")) ||
-              items2[0];
 
-            if (largeImg2) {
-              setNasaImage(largeImg2.replace(/^http:\/\//i, "https://"));
-              return;
+            try {
+              const assetRes2 = await fetch(
+                `https://images-api.nasa.gov/asset/${nasaIdFromSearch}`,
+              );
+              const assetData2 = await assetRes2.json();
+              const items2: string[] = assetData2.collection.items.map(
+                (i: any) => i.href,
+              );
+              const largeImg2 =
+                items2.find((href) => href.includes("~orig.")) ||
+                items2.find((href) => href.includes("~large.")) ||
+                items2.find((href) => href.endsWith(".jpg")) ||
+                items2[0];
+
+              if (largeImg2) {
+                imageUrl = largeImg2.replace(/^http:\/\//i, "https://");
+              }
+            } catch (_) {
+              console.log(
+                "Falha ao buscar imagem em alta resolução do fallback, tentando thumbnail.",
+              );
             }
-          } catch (_) {}
 
-          // Último recurso: thumbnail
-          const thumb = firstItem.links?.[0]?.href;
-          if (thumb) setNasaImage(thumb.replace(/^http:\/\//i, "https://"));
+            // Último recurso: thumbnail se nenhuma imagem grande for encontrada
+            if (!imageUrl) {
+              const thumb = firstItem.links?.[0]?.href;
+              if (thumb) imageUrl = thumb.replace(/^http:\/\//i, "https://");
+            }
+          }
         }
+
+        setNasaImage(imageUrl);
       } catch (error) {
         console.error("Erro ao buscar imagem da NASA:", error);
       } finally {
@@ -268,7 +282,7 @@ export default function GalaxiaDetail() {
           ))}
 
           <Text style={styles.apiCredit}>
-            Arquivo NASA: Galáxias {"\n"}
+            Arquivo NASA: Galáxias {`\n`}
             Termo buscado no catálogo oficial.
           </Text>
         </View>
@@ -333,6 +347,7 @@ const styles = StyleSheet.create({
 const SafeNasaImage = ({ uri, style }: { uri: string | null; style: any }) => {
   const [imageError, setImageError] = React.useState(false);
 
+  // Uma imagem de espaço genérica bonita como último caso
   const fallbackImage =
     "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1200&q=80";
 
