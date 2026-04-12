@@ -13,17 +13,89 @@ import {
   View,
 } from "react-native";
 
-const GEMINI_API_KEY = "AIzaSyD2mLEs_iYpQOpQg8HdIm1o8BWiZe7HzkU";
+const decodeHTML = (str: string): string => {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&rsquo;/g, "'")
+    .replace(/&ldquo;/g, '"')
+    .replace(/&rdquo;/g, '"');
+};
+
+const traduzir = async (texto: string): Promise<string> => {
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|pt-BR`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.responseStatus === 200) return data.responseData.translatedText;
+    return texto;
+  } catch {
+    return texto;
+  }
+};
+
+const traduzirArray = async (arr: string[]): Promise<string[]> => {
+  return Promise.all(arr.map((item) => traduzir(item)));
+};
+
+// Palavras-chave para filtrar perguntas de astronomia
+const PALAVRAS_ASTRONOMIA = [
+  "planet",
+  "star",
+  "moon",
+  "galaxy",
+  "nebula",
+  "comet",
+  "asteroid",
+  "solar",
+  "orbit",
+  "telescope",
+  "nasa",
+  "space",
+  "universe",
+  "cosmos",
+  "constellation",
+  "supernova",
+  "black hole",
+  "milky way",
+  "saturn",
+  "jupiter",
+  "mars",
+  "venus",
+  "mercury",
+  "uranus",
+  "neptune",
+  "earth",
+  "sun",
+  "light year",
+  "apollo",
+  "hubble",
+  "astronaut",
+  "meteor",
+  "eclipse",
+  "gravity",
+  "rocket",
+  "shuttle",
+  "astronomy",
+  "cosmic",
+];
+
+const isAstronomia = (pergunta: string): boolean => {
+  const lower = pergunta.toLowerCase();
+  return PALAVRAS_ASTRONOMIA.some((kw) => lower.includes(kw));
+};
 
 export default function QuizTabScreen() {
   const [loading, setLoading] = useState(true);
+  const [loadingMsg, setLoadingMsg] = useState("Buscando perguntas...");
   const [globalScore, setGlobalScore] = useState(0);
-
   const [currentBatch, setCurrentBatch] = useState<any[]>([]);
   const [perguntaAtual, setPerguntaAtual] = useState(0);
   const [pontosNaRodada, setPontosNaRodada] = useState(0);
   const [mostrarResultado, setMostrarResultado] = useState(false);
-
   const [opcaoSelecionada, setOpcaoSelecionada] = useState<number | null>(null);
   const [feedbackExibido, setFeedbackExibido] = useState(false);
 
@@ -35,105 +107,79 @@ export default function QuizTabScreen() {
     try {
       const savedScore = await AsyncStorage.getItem("@quiz_score");
       setGlobalScore(savedScore ? parseInt(savedScore) : 0);
-      gerarPerguntasComIA();
     } catch (error) {
       console.error("Erro ao carregar pontuação", error);
     }
+    gerarPerguntas();
   };
 
-  const gerarPerguntasComIA = async () => {
+  const gerarPerguntas = async () => {
     setLoading(true);
     setMostrarResultado(false);
-
-    // =========================================================
-    // ARMA 1: SORTEIO DE SUBTEMAS PARA NÃO REPETIR
-    // =========================================================
-    const listaDeTemas = [
-      "Buracos Negros e Quasares",
-      "Missões Espaciais (Apollo, Voyager)",
-      "Telescópios (Hubble, James Webb)",
-      "Galáxias e Nebulosas",
-      "Exoplanetas",
-      "Luas de Júpiter e Saturno",
-      "Constelações e Estrelas",
-      "História da Astronomia",
-      "Física Quântica e Espaço",
-      "Morte das Estrelas (Supernovas)",
-      "Asteroides, Meteoros e Cometas",
-      "A Teoria do Big Bang",
-    ];
-    // Pega 3 temas aleatórios dessa lista para esta rodada
-    const temasSorteados = listaDeTemas
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-      .join(", ");
-    const seedAleatoria = Math.floor(Math.random() * 999999);
+    setLoadingMsg("Buscando perguntas de astronomia...");
 
     try {
-      const prompt = `
-        Gere 10 perguntas de múltipla escolha INÉDITAS, difíceis e curiosas em português do Brasil.
-        
-        REGRA 1: Foco EXCLUSIVO nestes temas: ${temasSorteados}.
-        REGRA 2: NÃO faça perguntas clichês (ex: qual o maior planeta, quem pisou na lua primeiro). Seja criativo.
-        REGRA 3: Retorne APENAS um array JSON puro. Sem formatação markdown (\`\`\`json).
-        Semente: ${seedAleatoria}
-
-        Estrutura OBRIGATÓRIA:
-        [
-          {
-            "pergunta": "Texto da pergunta aqui",
-            "opcoes": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"],
-            "respostaCerta": 0,
-            "explicacao": "Uma curiosidade detalhada."
-          }
-        ]
-      `;
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache", // ARMA 2: Ignora a memória do celular
-            Pragma: "no-cache",
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            // ARMA 3: TEMPERATURE 1.2 OBRIGA A IA A SER MUITO MAIS ALEATÓRIA E CRIATIVA
-            generationConfig: {
-              temperature: 1.2,
-            },
-          }),
-        },
-      );
-
+      // Busca 50 perguntas de Science & Nature para ter margem de filtrar
+      const url =
+        "https://opentdb.com/api.php?amount=50&category=17&type=multiple";
+      const response = await fetch(url);
       const data = await response.json();
 
-      if (data.error) {
-        throw new Error(`Erro da API: ${data.error.message}`);
+      if (data.response_code !== 0 || !data.results?.length) {
+        throw new Error("Sem perguntas disponíveis.");
       }
 
-      const textoResposta = data.candidates[0].content.parts[0].text;
-      let jsonLimpo = textoResposta
-        .replace(/```json/gi, "")
-        .replace(/```/gi, "")
-        .trim();
+      // Filtra só as de astronomia
+      const filtradas = data.results.filter((item: any) =>
+        isAstronomia(decodeHTML(item.question)),
+      );
 
-      const perguntasGeradas = JSON.parse(jsonLimpo);
+      // Se tiver pelo menos 5 da API, usa elas + completa com banco local
+      let perguntasFinais: any[] = [];
 
-      setCurrentBatch(perguntasGeradas);
+      if (filtradas.length >= 5) {
+        setLoadingMsg("Traduzindo para o português...");
+
+        const traduzidas = await Promise.all(
+          filtradas.slice(0, 7).map(async (item: any) => {
+            const perguntaTraduzida = await traduzir(decodeHTML(item.question));
+            const todasOpcoes = [
+              ...item.incorrect_answers,
+              item.correct_answer,
+            ].map(decodeHTML);
+            const opcoesTraduzidas = await traduzirArray(todasOpcoes);
+            const indiceCorreta = todasOpcoes.indexOf(item.correct_answer);
+            return {
+              pergunta: perguntaTraduzida,
+              opcoes: opcoesTraduzidas,
+              respostaCerta: indiceCorreta,
+              explicacao: `A resposta correta é: ${opcoesTraduzidas[indiceCorreta]}`,
+            };
+          }),
+        );
+
+        // Completa com banco local para chegar em 10
+        const locais = [...bancoDeDadosLocalReserva]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 10 - traduzidas.length);
+
+        perguntasFinais = [...traduzidas, ...locais].sort(
+          () => Math.random() - 0.5,
+        );
+      } else {
+        // API não retornou suficiente — usa só banco local
+        throw new Error("Poucas perguntas de astronomia na API.");
+      }
+
+      setCurrentBatch(perguntasFinais);
       setPerguntaAtual(0);
       setPontosNaRodada(0);
       setOpcaoSelecionada(null);
       setFeedbackExibido(false);
     } catch (error: any) {
-      console.log("FALHA NA GERAÇÃO:", error.message);
-      Alert.alert(
-        "Sem conexão com IA",
-        "Não foi possível criar perguntas novas agora. Carregando perguntas locais.",
-      );
+      console.log("ERRO:", error.message);
 
+      // Fallback: banco local embaralhado
       const bancoEmbaralhado = [...bancoDeDadosLocalReserva]
         .sort(() => Math.random() - 0.5)
         .slice(0, 10);
@@ -141,6 +187,8 @@ export default function QuizTabScreen() {
       setCurrentBatch(bancoEmbaralhado);
       setPerguntaAtual(0);
       setPontosNaRodada(0);
+      setOpcaoSelecionada(null);
+      setFeedbackExibido(false);
     } finally {
       setLoading(false);
     }
@@ -155,9 +203,7 @@ export default function QuizTabScreen() {
       let novaPontuacao = acertou
         ? globalScore + 1
         : Math.max(0, globalScore - 1);
-
       if (acertou) setPontosNaRodada(pontosNaRodada + 1);
-
       setGlobalScore(novaPontuacao);
       await AsyncStorage.setItem("@quiz_score", novaPontuacao.toString());
       setFeedbackExibido(true);
@@ -181,7 +227,7 @@ export default function QuizTabScreen() {
         onPress: async () => {
           await AsyncStorage.removeItem("@quiz_score");
           setGlobalScore(0);
-          gerarPerguntasComIA();
+          gerarPerguntas();
         },
       },
     ]);
@@ -192,8 +238,10 @@ export default function QuizTabScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.container, { alignItems: "center" }]}>
           <ActivityIndicator size="large" color="#4DB6AC" />
-          <Text style={{ color: "#4DB6AC", marginTop: 15 }}>
-            Explorando o universo em busca de perguntas...
+          <Text
+            style={{ color: "#4DB6AC", marginTop: 15, textAlign: "center" }}
+          >
+            {loadingMsg}
           </Text>
         </View>
       </SafeAreaView>
@@ -221,11 +269,8 @@ export default function QuizTabScreen() {
             <Text style={styles.scoreText}>
               {pontosNaRodada} / {currentBatch.length}
             </Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={gerarPerguntasComIA}
-            >
-              <Text style={styles.buttonText}>Gerar Novas Perguntas (IA)</Text>
+            <TouchableOpacity style={styles.button} onPress={gerarPerguntas}>
+              <Text style={styles.buttonText}>Novas Perguntas</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -305,67 +350,220 @@ export default function QuizTabScreen() {
   );
 }
 
+// Banco local grande e variado — só astronomia
 const bancoDeDadosLocalReserva = [
+  {
+    pergunta: "Qual é o maior planeta do Sistema Solar?",
+    opcoes: ["Saturno", "Júpiter", "Urano", "Netuno"],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: Júpiter",
+  },
+  {
+    pergunta: "Qual planeta é conhecido como o Planeta Vermelho?",
+    opcoes: ["Vênus", "Mercúrio", "Marte", "Júpiter"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Marte",
+  },
+  {
+    pergunta: "Quantas luas tem Saturno?",
+    opcoes: ["12", "27", "62", "146"],
+    respostaCerta: 3,
+    explicacao: "A resposta correta é: 146 luas confirmadas",
+  },
+  {
+    pergunta: "Qual é a estrela mais próxima do Sistema Solar?",
+    opcoes: ["Sirius", "Próxima Centauri", "Vega", "Betelgeuse"],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: Próxima Centauri",
+  },
+  {
+    pergunta: "Em que ano foi lançado o Telescópio Espacial Hubble?",
+    opcoes: ["1985", "1990", "1995", "2000"],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: 1990",
+  },
+  {
+    pergunta:
+      "Qual lua de Júpiter é o corpo mais vulcanicamente ativo do Sistema Solar?",
+    opcoes: ["Europa", "Ganimedes", "Io", "Calisto"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Io",
+  },
+  {
+    pergunta: "O que é uma supernova?",
+    opcoes: [
+      "Uma nova estrela",
+      "A explosão final de uma estrela massiva",
+      "Um buraco negro",
+      "Uma nebulosa em expansão",
+    ],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: A explosão final de uma estrela massiva",
+  },
+  {
+    pergunta: "Qual constelação contém as famosas 'Três Marias'?",
+    opcoes: ["Escorpião", "Ursa Maior", "Órion", "Cruzeiro do Sul"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Órion",
+  },
+  {
+    pergunta: "Qual é o nome da galáxia em que vivemos?",
+    opcoes: ["Andrômeda", "Sombrero", "Cartwheel", "Via Láctea"],
+    respostaCerta: 3,
+    explicacao: "A resposta correta é: Via Láctea",
+  },
+  {
+    pergunta: "Qual cometa é famoso por passar perto da Terra a cada 75 anos?",
+    opcoes: ["Halley", "Hale-Bopp", "Shoemaker-Levy", "Encke"],
+    respostaCerta: 0,
+    explicacao: "A resposta correta é: Halley",
+  },
+  {
+    pergunta: "Qual planeta tem os anéis mais visíveis do Sistema Solar?",
+    opcoes: ["Júpiter", "Urano", "Saturno", "Netuno"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Saturno",
+  },
+  {
+    pergunta: "O que é um ano-luz?",
+    opcoes: [
+      "Um ano no espaço",
+      "A distância percorrida pela luz em um ano",
+      "A idade de uma estrela",
+      "A velocidade da luz",
+    ],
+    respostaCerta: 1,
+    explicacao:
+      "A resposta correta é: A distância percorrida pela luz em um ano",
+  },
+  {
+    pergunta: "Qual missão levou o primeiro homem à Lua?",
+    opcoes: ["Apollo 10", "Apollo 11", "Apollo 13", "Gemini 7"],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: Apollo 11",
+  },
+  {
+    pergunta: "Qual é o nome do buraco negro no centro da Via Láctea?",
+    opcoes: ["Cygnus X-1", "M87*", "Sagitário A*", "NGC 1277"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Sagitário A*",
+  },
+  {
+    pergunta: "Qual planeta orbita o Sol de lado, com inclinação de 98 graus?",
+    opcoes: ["Netuno", "Saturno", "Urano", "Júpiter"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Urano",
+  },
+  {
+    pergunta:
+      "Qual é a nebulosa mais famosa e visível a olho nu na constelação de Órion?",
+    opcoes: [
+      "Nebulosa do Caranguejo",
+      "Nebulosa de Órion (M42)",
+      "Nebulosa da Águia",
+      "Nebulosa da Hélice",
+    ],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: Nebulosa de Órion (M42)",
+  },
+  {
+    pergunta: "Qual foi o primeiro satélite artificial enviado ao espaço?",
+    opcoes: ["Explorer 1", "Vostok 1", "Sputnik 1", "Apollo 1"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Sputnik 1, em 1957",
+  },
+  {
+    pergunta: "Quantos planetas existem no Sistema Solar?",
+    opcoes: ["7", "8", "9", "10"],
+    respostaCerta: 1,
+    explicacao:
+      "A resposta correta é: 8 planetas (Plutão foi reclassificado como planeta anão)",
+  },
+  {
+    pergunta: "Qual é o planeta mais quente do Sistema Solar?",
+    opcoes: ["Mercúrio", "Marte", "Júpiter", "Vênus"],
+    respostaCerta: 3,
+    explicacao: "A resposta correta é: Vênus, por seu efeito estufa extremo",
+  },
+  {
+    pergunta: "O Telescópio James Webb foi lançado em qual ano?",
+    opcoes: ["2018", "2019", "2021", "2023"],
+    respostaCerta: 2,
+    explicacao:
+      "A resposta correta é: 2021, com operações científicas iniciadas em 2022",
+  },
+  {
+    pergunta: "Qual lua de Saturno possui rios e lagos de metano líquido?",
+    opcoes: ["Encélado", "Mimas", "Titã", "Reia"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Titã",
+  },
+  {
+    pergunta: "Qual é a constelação mais reconhecível do hemisfério sul?",
+    opcoes: ["Órion", "Ursa Maior", "Cruzeiro do Sul", "Escorpião"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Cruzeiro do Sul",
+  },
+  {
+    pergunta: "A que velocidade a luz viaja no vácuo?",
+    opcoes: ["150.000 km/s", "300.000 km/s", "450.000 km/s", "600.000 km/s"],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: 300.000 km/s",
+  },
+  {
+    pergunta:
+      "Qual é o nome da sonda que saiu do Sistema Solar e agora está no espaço interestelar?",
+    opcoes: ["Pioneer 10", "Voyager 1", "New Horizons", "Cassini"],
+    respostaCerta: 1,
+    explicacao: "A resposta correta é: Voyager 1, lançada em 1977",
+  },
+  {
+    pergunta: "Qual planeta tem a maior tempestade conhecida do Sistema Solar?",
+    opcoes: ["Saturno", "Netuno", "Júpiter", "Urano"],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Júpiter, com a Grande Mancha Vermelha",
+  },
+  {
+    pergunta: "Qual é o tipo de estrela que o nosso Sol é?",
+    opcoes: [
+      "Gigante Vermelha",
+      "Anã Branca",
+      "Anã Amarela",
+      "Supergigante Azul",
+    ],
+    respostaCerta: 2,
+    explicacao: "A resposta correta é: Anã Amarela (tipo G)",
+  },
+  {
+    pergunta:
+      "Qual lua de Júpiter tem um oceano subterrâneo que pode abrigar vida?",
+    opcoes: ["Io", "Ganimedes", "Calisto", "Europa"],
+    respostaCerta: 3,
+    explicacao: "A resposta correta é: Europa",
+  },
   {
     pergunta: "Qual é a galáxia mais próxima da Via Láctea?",
     opcoes: ["Sombrero", "Andrômeda", "Triângulo", "Cartwheel"],
     respostaCerta: 1,
-    explicacao: "Andrômeda é a galáxia espiral mais próxima de nós.",
+    explicacao: "A resposta correta é: Andrômeda",
   },
   {
-    pergunta:
-      "Qual lua de Júpiter tem potencial para abrigar vida em oceanos subterrâneos?",
-    opcoes: ["Io", "Calisto", "Titã", "Europa"],
+    pergunta: "Qual planeta tem os ventos mais rápidos do Sistema Solar?",
+    opcoes: ["Júpiter", "Saturno", "Urano", "Netuno"],
     respostaCerta: 3,
-    explicacao:
-      "Europa possui uma crosta de gelo e provavelmente um oceano líquido abaixo.",
+    explicacao: "A resposta correta é: Netuno, com ventos de até 2.100 km/h",
   },
   {
-    pergunta: "Como se chama a explosão final de uma estrela muito massiva?",
-    opcoes: ["Supernova", "Anã Branca", "Buraco Negro", "Nebulosa"],
-    respostaCerta: 0,
-    explicacao:
-      "A supernova é o estágio explosivo final na vida de estrelas supermassivas.",
-  },
-  {
-    pergunta: "Qual foi o primeiro satélite artificial a orbitar a Terra?",
-    opcoes: ["Apollo 11", "Explorer 1", "Sputnik 1", "Voyager 1"],
-    respostaCerta: 2,
-    explicacao:
-      "Lançado em 1957 pela União Soviética, o Sputnik 1 iniciou a era espacial.",
-  },
-  {
-    pergunta: "Qual planeta tem os ventos mais fortes do Sistema Solar?",
-    opcoes: ["Júpiter", "Marte", "Netuno", "Urano"],
-    respostaCerta: 2,
-    explicacao:
-      "Netuno tem ventos supersônicos que chegam a mais de 2.000 km/h.",
-  },
-  {
-    pergunta: "Em que ano o homem pisou na lua?",
-    opcoes: ["1965", "1969", "1972", "1958"],
-    respostaCerta: 1,
-    explicacao: "Neil Armstrong pisou na lua em 20 de julho de 1969.",
-  },
-  {
-    pergunta:
-      "Qual dessas constelações é facilmente identificada por 'Três Marias'?",
-    opcoes: ["Órion", "Cruzeiro do Sul", "Escorpião", "Ursa Maior"],
-    respostaCerta: 0,
-    explicacao:
-      "As Três Marias formam o cinto do caçador na constelação de Órion.",
-  },
-  {
-    pergunta: "O que é um exoplaneta?",
+    pergunta: "O que é uma nebulosa planetária?",
     opcoes: [
-      "Planeta sem lua",
-      "Planeta fora do sistema solar",
-      "Planeta gasoso",
-      "Planeta anão",
+      "Uma nebulosa ao redor de um planeta",
+      "A camada de gás ejetada por uma estrela moribunda",
+      "Uma nuvem de poeira interestelar",
+      "O berçário de novos planetas",
     ],
     respostaCerta: 1,
     explicacao:
-      "Exoplanetas são planetas que orbitam outras estrelas que não o nosso Sol.",
+      "A resposta correta é: A camada de gás ejetada por uma estrela moribunda",
   },
 ];
 
@@ -398,7 +596,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     color: "#FFF",
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 30,
     textAlign: "center",
@@ -413,7 +611,7 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   optionButtonSelected: { borderColor: "#4DB6AC", backgroundColor: "#111F2D" },
-  optionText: { color: "#FFF", fontSize: 18 },
+  optionText: { color: "#FFF", fontSize: 16 },
   optionCorrect: { backgroundColor: "#2E7D32", borderColor: "#4CAF50" },
   textCorrect: { color: "#FFF", fontWeight: "bold" },
   optionIncorrect: { backgroundColor: "#C62828", borderColor: "#EF5350" },

@@ -135,23 +135,19 @@ const nebulosasData: Record<string, any> = {
   },
 };
 
-/**
- * IDs DA NASA VALIDADOS E PRECISOS (Fevereiro 2024)
- * Estes IDs foram verificados para garantir a correspondência exata com o objeto.
- */
 const NASA_FIXED_IDS: Record<string, string> = {
-  orion: "PIA08615", // Sharpest View of Orion Nebula (Hubble)
-  carina: "carina_nebula", // James Webb "Cosmic Cliffs" (ID oficial Webb)
-  eagle: "PIA03096", // Pillars of Creation (Hubble)
-  crab: "GSFC_20171208_Archive_e000640", // Crab Nebula Hubble Mosaic
-  ring: "PIA14443", // Ring Nebula (Hubble)
-  helix: "PIA15658", // Helix Nebula (Spitzer/Hubble)
-  horsehead: "PIA04215", // Horsehead Nebula (Hubble)
-  lagoon: "GSFC_20171208_Archive_e001955", // Heart of Lagoon Nebula (Hubble)
-  butterfly: "GSFC_20171208_Archive_e000637", // Butterfly Nebula Twin Jet (Hubble)
-  veil: "PIA15413", // Veil Nebula Shrapnel (Hubble)
-  trifid: "PIA04220", // Trifid Nebula (Hubble)
-  rosette: "PIA13028", // Rosette Nebula (Herschel/Spitzer)
+  orion: "PIA03519",
+  carina: "carina_nebula",
+  eagle: "PIA03096",
+  crab: "GSFC_20171208_Archive_e000640",
+  ring: "PIA14443",
+  helix: "PIA15658",
+  horsehead: "PIA04215",
+  lagoon: "GSFC_20171208_Archive_e001955",
+  butterfly: "GSFC_20171208_Archive_e000637",
+  veil: "PIA15413",
+  trifid: "PIA04220",
+  rosette: "PIA13028",
 };
 
 export default function Detail() {
@@ -172,7 +168,6 @@ export default function Detail() {
         const nasaId = NASA_FIXED_IDS[id as string];
 
         if (nasaId) {
-          // 1. Tenta buscar no endpoint de asset (mais confiável para IDs fixos)
           const assetRes = await fetch(
             `https://images-api.nasa.gov/asset/${nasaId}`,
           );
@@ -183,7 +178,6 @@ export default function Detail() {
               (i: any) => i.href,
             );
 
-            // Preferência por imagens grandes e originais
             imageUrl =
               items.find((h) => h.includes("~orig.")) ||
               items.find((h) => h.includes("~large.")) ||
@@ -192,7 +186,6 @@ export default function Detail() {
           }
         }
 
-        // 2. Se falhar, tenta busca por NASA ID no endpoint de search
         if (!imageUrl && nasaId) {
           const searchRes = await fetch(
             `https://images-api.nasa.gov/search?nasa_id=${nasaId}`,
