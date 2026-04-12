@@ -1,244 +1,128 @@
-# 🚀 Asteres - Explorador Astronômico
+﻿# 🚀 Asteres - Explorador Astronômico
 
-Asteres é um aplicativo mobile moderno desenvolvido com React Native e Expo Router, dedicado à exploração do universo. O app oferece uma experiência imersiva para aprender sobre planetas, luas, nebulosas, galáxias e constelações, com imagens oficiais da NASA e um quiz interativo.
-
----
-
-## 🛠️ Tecnologias e Ferramentas
-
-- **Framework**: Expo (React Native) com suporte a TypeScript
-- **Navegação**: Expo Router v6 (File-based routing)
-- **Ícones**: Ionicons e MaterialCommunityIcons (@expo/vector-icons)
-- **Armazenamento Local**: AsyncStorage (para persistência de dados)
-- **APIs Externas**: NASA Images API para imagens oficiais
-- **Estilização**: StyleSheet nativo com foco em Dark Mode
-- **Build**: EAS Build para distribuição
+Asteres é um aplicativo educacional de astronomia desenvolvido com React Native e Expo Router. O app permite explorar planetas, luas, nebulosas, galáxias e constelações com imagens oficiais da NASA e um quiz interativo de astronomia.
 
 ---
 
-## ✨ Principais Funcionalidades
+## 🧩 Visão Geral
 
-- **Exploração Interativa**: Navegue por categorias de objetos astronômicos (Planetas, Luas, Nebulosas, Galáxias, Constelações)
-- **Detalhes Ricos**: Cada objeto possui descrição detalhada, curiosidades e imagens oficiais da NASA
-- **Busca e Filtros**: Pesquisa por nome e filtros por categoria
-- **Quiz Astronômico**: Teste seus conhecimentos com perguntas sobre o universo
-- **Interface Dark Mode**: Design espacial com cores escuras e acentos em ciano (#4DB6AC)
-- **Offline-First**: Dados locais garantem funcionamento mesmo sem internet
+- Aplicativo mobile criado com **Expo** e **TypeScript**
+- Navegação baseada em arquivos usando **Expo Router**
+- Conteúdo dividido em categorias astronômicas
+- Imagens oficiais carregadas da **NASA Images API**
+- Quiz de astronomia com perguntas traduzidas e pontuação local
 
 ---
 
-## 📂 Estrutura do Projeto
+## 📁 Estrutura do Projeto
 
-### Arquivos de Configuração
+- `app/` - todas as telas e rotas do aplicativo
+  - `_layout.tsx` - layout de navegação principal
+  - `modal.tsx` - modal global
+  - `(tabs)/` - navegação por abas
+    - `index.tsx` - página inicial
+    - `explore.tsx` - catálogo de objetos astronômicos
+    - `quiz.tsx` - quiz com perguntas de astronomia
+    - `about.tsx` / `news.tsx` - telas extras
+  - `planetas/[id].tsx`, `luas/[id].tsx`, `nebulosas/[id].tsx`, `galaxias/[id].tsx`, `constelacoes/[id].tsx` - páginas de detalhe com imagens NASA
+- `components/` - componentes de UI reutilizáveis
+- `constants/theme.ts` - variáveis de tema e cores
+- `hooks/` - hooks personalizados de tema e esquema de cores
+- `scripts/reset-project.js` - script de reset do projeto
 
-- `app.json` - Configuração principal do Expo (nome, ícones, splash screen, plugins)
-- `eas.json` - Configuração do EAS Build para distribuição
-- `package.json` - Dependências e scripts do projeto
-- `tsconfig.json` - Configuração do TypeScript
-- `eslint.config.js` - Regras de linting
-- `expo-env.d.ts` - Tipos para variáveis de ambiente do Expo
+---
 
-### Diretório `app/` (Navegação Expo Router)
+## 🛠️ Tecnologias Usadas
 
-- `_layout.tsx` - Layout raiz da aplicação (Stack navigation)
-- `modal.tsx` - Componente de modal global
-- `(tabs)/` - Navegação por abas
-  - `_layout.tsx` - Configuração das abas (Tab navigation com ícones e cores)
-  - `index.tsx` - Tela inicial/Home
-  - `explore.tsx` - Tela de exploração com lista de objetos astronômicos
-  - `about.tsx` - Tela "Sobre" (não anexada)
-  - `news.tsx` - Tela de notícias (não anexada)
-  - `quiz.tsx` - Tela do quiz astronômico
-
-### Diretórios de Detalhes (Dynamic Routes)
-
-- `planetas/[id].tsx` - Detalhes de planetas (não anexado)
-- `luas/[id].tsx` - Detalhes de luas (não anexado)
-- `nebulosas/[id].tsx` - Detalhes de nebulosas (com dados e API NASA)
-- `galaxias/[id].tsx` - Detalhes de galáxias (com dados e API NASA)
-- `constelacoes/[id].tsx` - Detalhes de constelações (não anexado)
-
-### Diretório `assets/`
-
-- `images/` - Imagens do app (ícones, logos, etc.)
-
-### Diretório `components/`
-
-- `external-link.tsx` - Componente para links externos
-- `haptic-tab.tsx` - Componente de aba com feedback háptico
-- `hello-wave.tsx` - Componente de saudação animada
-- `parallax-scroll-view.tsx` - Scroll view com efeito parallax
-- `themed-text.tsx` - Texto com tema
-- `themed-view.tsx` - View com tema
-- `ui/` - Componentes de UI
-  - `collapsible.tsx` - Componente colapsível
-  - `icon-symbol.ios.tsx` - Ícones para iOS
-  - `icon-symbol.tsx` - Ícones genéricos
-
-### Diretório `constants/`
-
-- `theme.ts` - Constantes de tema (cores, fontes, etc.)
-
-### Diretório `hooks/`
-
-- `use-color-scheme.ts` - Hook para detectar esquema de cores
-- `use-color-scheme.web.ts` - Versão web do hook de cores
-- `use-theme-color.ts` - Hook para cores do tema
-
-### Diretório `scripts/`
-
-- `reset-project.js` - Script para resetar o projeto
+- Expo
+- React Native
+- TypeScript
+- Expo Router
+- AsyncStorage
+- @expo/vector-icons
+- NASA Images API
+- Open Trivia DB
+- MyMemory Translation API
 
 ---
 
 ## 🚀 Como Executar
 
-### Pré-requisitos
-
-- Node.js (versão 18 ou superior)
-- Expo CLI (`npm install -g @expo/cli`)
-- Dispositivo físico ou emulador/simulador
-
 ### Instalação
 
 ```bash
-# Clone o repositório (se aplicável)
 git clone <url-do-repositorio>
 cd asteres
-
-# Instale as dependências
 npm install
 ```
 
-### Execução
+### Execução em Desenvolvimento
 
 ```bash
-# Inicie o servidor de desenvolvimento
 npm start
-
-# Ou diretamente com Expo
-expo start
-
-# Para plataformas específicas
-npm run android  # Android
-npm run ios      # iOS
-npm run web      # Web
 ```
 
-### Build para Produção
+### Abrir em Plataformas
 
 ```bash
-# Build com EAS
-eas build --platform android
-eas build --platform ios
+npm run android
+npm run ios
+npm run web
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Reset do Projeto
+
+```bash
+npm run reset-project
 ```
 
 ---
 
-## 📱 Funcionalidades Detalhadas
+## ✨ Funcionalidades Principais
 
-### Tela de Exploração (`explore.tsx`)
-
-- Lista todos os objetos astronômicos disponíveis
-- Filtros por categoria (Todos, Planetas, Luas, Nebulosas, Galáxias, Constelações)
-- Barra de pesquisa para encontrar objetos específicos
-- Navegação para telas de detalhes via Expo Router
-
-### Telas de Detalhes (`[id].tsx`)
-
-- Layout consistente para todos os tipos de objetos
-- Imagens oficiais da NASA via API
-- Descrições científicas e curiosidades
-- Navegação de volta com botão estilizado
-- Fallback para imagens genéricas em caso de erro
-
-### Quiz (`quiz.tsx`)
-
-- Sistema de perguntas sobre astronomia
-- Pontuação e feedback
-- Interface interativa
+- Exploração de objetos astronômicos por categoria
+- Busca por nome e filtro por categoria em `app/(tabs)/explore.tsx`
+- Detalhes com imagens reais da NASA
+- Quiz de astronomia com pontuação persistente
+- Fallback automático quando a API remota não entrega conteúdo suficiente
 
 ---
 
-## 🎨 Design System
+## 🔧 Observações Relevantes
 
-- **Tema Dark**: Fundo `#05050A` (quase preto), texto branco
-- **Cor de Destaque**: `#4DB6AC` (ciano/verde água)
-- **Fonte**: Padrão do sistema com pesos variados
-- **Espaçamento**: Consistente com padding de 20px nas telas principais
-- **Ícones**: Ionicons e MaterialCommunityIcons com tamanhos de 28-30px
-
----
-
-## 🔧 Desenvolvimento
-
-### Convenções de Código
-
-- TypeScript obrigatório
-- ESLint para qualidade de código
-- Expo Router para navegação file-based
-- Componentes funcionais com hooks
-
-### APIs Utilizadas
-
-- **NASA Images API**: Para buscar imagens oficiais de objetos astronômicos
-  - Endpoint: `https://images-api.nasa.gov/`
-  - Busca por ID fixo ou termo de pesquisa
-  - Fallback automático para imagens genéricas
-
-### Gerenciamento de Estado
-
-- Props drilling para navegação
-- AsyncStorage para persistência local
-- useState/useEffect para estado local
+- O quiz usa a API **Open Trivia DB** para obter perguntas e filtra apenas perguntas de astronomia.
+- As perguntas recebidas são traduzidas para português com a API **MyMemory**.
+- A pontuação do quiz é armazenada localmente em `AsyncStorage` na chave `@quiz_score`.
+- As telas de detalhes usam a **NASA Images API** para exibir imagens oficiais sempre que disponíveis.
+- A navegação central é gerenciada por `expo-router` em `app/_layout.tsx`.
 
 ---
 
-## 📄 Licença
+## 📄 Scripts disponíveis
 
-Este projeto é propriedade de Lohan dos Reis. Todos os direitos reservados.
+- `npm start` — inicia o Expo Dev Server
+- `npm run android` — abre no dispositivo Android
+- `npm run ios` — abre no dispositivo iOS
+- `npm run web` — abre no navegador
+- `npm run lint` — executa o lint do Expo
+- `npm run reset-project` — reseta arquivos de layout/tela do projeto
 
 ---
 
-## 👨‍💻 Autor
+## 📌 Status Atual
+
+- Não há alterações pendentes no workspace atual.
+
+---
+
+## 🧑‍🚀 Autor
 
 **Lohan dos Reis**
 
-- Desenvolvimento mobile com React Native/Expo
-- Foco em aplicações educacionais e científicas
-
-## 🚀 Como Instalar e Configurar
-
-1. Clonar e Instalar Dependências:
-   npm install @react-native-async-storage/async-storage @expo/vector-icons
-
-2. Configurar a Chave da API:
-   No arquivo app/(tabs)/quiz.tsx, insira sua chave do Google AI Studio na constante GEMINI_API_KEY.
-
-3. Rodar o Projeto:
-   npx expo start
-
----
-
-## ⚠️ Resolução de Problemas (Troubleshooting)
-
-"As perguntas estão repetindo (Loop de 8 perguntas)":
-Isso acontece quando a API do Google falha (por falta de internet ou erro de chave). O app entra em modo de segurança e carrega as 8 perguntas padrão que estão no código. Verifique sua conexão e se a chave de API ainda é válida no painel do Google.
-
-"O JSON deu erro de leitura":
-A IA às vezes tenta enviar textos antes do código. Implementamos um filtro de limpeza que remove marcações de Markdown (```json) para garantir que o app sempre leia o array corretamente.
-
----
-
-## � Design System
-
-O app utiliza uma paleta de cores inspirada no espaço profundo:
-
-- Fundo: #05050A (Preto Estelar)
-- Primária: #4DB6AC (Verde Água/Nebulosa)
-- Destaque: #FFD700 (Ouro/Estrela)
-- Erro/Alerta: #EF5350 (Vermelho Marte)
-
----
-
-Desenvolvido com foco em interatividade e aprendizado sobre o cosmos. 🌌
+Aplicativo educacional de astronomia desenvolvido com Expo e React Native.
