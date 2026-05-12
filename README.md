@@ -84,17 +84,62 @@ npm run reset-project
 
 ---
 
-## ✨ Funcionalidades Principais
+## ✨ Funcionalidades Implementadas
 
-- Exploração de objetos astronômicos por categoria
-- Busca por nome e filtro por categoria em `app/(tabs)/explore.tsx`
-- Detalhes com imagens reais da NASA
-- Quiz de astronomia com pontuação persistente
-- Fallback automático quando a API remota não entrega conteúdo suficiente
+O Asteres oferece uma experiência completa de exploração astronômica através das seguintes funcionalidades principais:
+
+- **Navegação Intuitiva por Abas**: Interface organizada em abas (Início, Explorar, Quiz, Notícias, Sobre) para fácil acesso às seções do app.
+- **Tela Inicial com Categorias**: Apresentação visual das categorias astronômicas (Planetas, Luas, Nebulosas, Galáxias, Constelações) com ícones e descrições.
+- **Catálogo de Exploração**: Página de exploração com busca por nome de objeto e filtro por categoria, permitindo descoberta fácil de conteúdos.
+- **Páginas de Detalhes com Imagens NASA**: Para cada objeto astronômico, uma página dedicada exibindo imagens oficiais da NASA, descrições científicas e curiosidades interessantes.
+- **Quiz Interativo de Astronomia**: Sistema de perguntas e respostas com tradução automática para português, pontuação persistente armazenada localmente e banco de dados offline como fallback.
+- **Feed de Notícias Espaciais**: Integração com a Spaceflight News API para exibir as últimas notícias do espaço, com links para leitura completa.
+- **Tela Sobre o Aplicativo**: Informações sobre a missão do Asteres, tecnologias utilizadas e detalhes do desenvolvimento.
+- **Sistema de Fallback Automático**: Mecanismos de contingência para garantir funcionamento offline ou quando APIs externas não respondem, utilizando dados locais e imagens alternativas.
 
 ---
 
-## 🔧 Observações Relevantes
+## � Requisitos do Sistema
+
+### Requisitos Funcionais (Implementados)
+
+- Navegação intuitiva por abas (Início, Explorar, Quiz, Notícias, Sobre)
+- Exibição de categorias astronômicas na tela inicial (Planetas, Luas, Nebulosas, Galáxias, Constelações)
+- Catálogo de exploração com busca por nome e filtro por categoria
+- Páginas de detalhes para objetos astronômicos com imagens NASA, descrições e curiosidades
+- Quiz interativo de astronomia com tradução automática e pontuação persistente
+- Feed de notícias espaciais com integração à Spaceflight News API
+- Tela "Sobre" com informações do aplicativo
+- Sistema de fallback automático para APIs e dados offline
+
+### Requisitos Não Funcionais
+
+- Desenvolvimento utilizando Expo e TypeScript para compatibilidade multiplataforma (Android, iOS, Web)
+- Integração com APIs externas: NASA Images API, Open Trivia DB, MyMemory Translation API, Spaceflight News API
+- Armazenamento local de dados (pontuação do quiz) utilizando AsyncStorage
+- Navegação baseada em arquivos com Expo Router
+- Tema escuro consistente em toda a interface
+- Performance otimizada com carregamento assíncrono e fallback para conectividade limitada
+- Segurança: Uso de chaves de API válidas e tratamento de erros para APIs externas
+- Usabilidade: Interface intuitiva com ícones, animações e feedback visual
+- Manutenibilidade: Código modular com componentes reutilizáveis e estrutura organizada
+
+---
+
+## 🔄 Backlog de Atualizações Futuras
+
+As seguintes funcionalidades estão planejadas para implementações futuras:
+
+- **Foto Astronômica do Dia (APOD)**: Exibição diária de uma imagem épica da NASA na tela inicial, integrada à Astronomy Picture of the Day API.
+- **Internacionalização Dinâmica**: Tradução automática das descrições científicas da NASA de Inglês para Português via API de tradução, expandindo para outros idiomas.
+- **Sistema de Conquistas**: Implementação de medalhas e troféus virtuais baseados na performance do usuário no Quiz, com notificações e progresso visual.
+- **Modo Offline Completo**: Opção para baixar pacotes de imagens locais para uso sem conectividade, incluindo cache inteligente de conteúdo.
+- **Níveis de Dificuldade no Quiz**: Seleção de níveis (Fácil, Médio, Especialista) que alteram a complexidade das perguntas, adaptando-se ao conhecimento do usuário.
+- **Sistema de Gamificação com Emblemas**: Implementação de badges locais baseados no número de rodadas concluídas no Quiz, incentivando o engajamento contínuo.
+
+---
+
+## �🔧 Observações Relevantes
 
 - O quiz usa a API **Open Trivia DB** para obter perguntas e filtra apenas perguntas de astronomia.
 - As perguntas recebidas são traduzidas para português com a API **MyMemory**.
