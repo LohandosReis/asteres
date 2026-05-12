@@ -1,57 +1,94 @@
-import { Ionicons } from '@expo/vector-icons'; // Usando Ionicons para ícones melhores
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
 
-import { HapticTab } from '@/components/haptic-tab';
+import { HapticTab } from "@/components/haptic-tab";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#4DB6AC', // Cor de destaque (ciano/verde água)
-        tabBarInactiveTintColor: '#888888', // Cor dos ícones inativos
+        tabBarActiveTintColor: "#4DB6AC",
+        tabBarInactiveTintColor: "#888888",
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: '#0B0D17', // Fundo azul escuro/preto (Design Espacial)
-          borderTopColor: '#1A1A2E', // Linha sutil na borda superior
+          backgroundColor: "#0B0D17",
+          borderTopColor: "#1A1A2E",
           paddingBottom: 5,
           paddingTop: 5,
         },
-      }}>
+        tabBarLabelStyle: {
+          fontSize: 10, // levemente menor para caber 5 abas
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Início',
+          title: "Início",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={28} name={focused ? 'planet' : 'planet-outline'} color={color} />
+            <Ionicons
+              size={26}
+              name={focused ? "planet" : "planet-outline"}
+              color={color}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explorar',
+          title: "Explorar",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={28} name={focused ? 'search' : 'search-outline'} color={color} />
+            <Ionicons
+              size={26}
+              name={focused ? "search" : "search-outline"}
+              color={color}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="quiz"
         options={{
-          title: 'Quiz',
+          title: "Quiz",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={28} name={focused ? 'help-circle' : 'help-circle-outline'} color={color} />
+            <Ionicons
+              size={26}
+              name={focused ? "help-circle" : "help-circle-outline"}
+              color={color}
+            />
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="apod"
+        options={{
+          title: "Hoje",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              size={26}
+              name={focused ? "telescope" : "telescope-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="news"
         options={{
-          title: 'Notícias',
+          title: "Notícias",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={28} name={focused ? 'newspaper' : 'newspaper-outline'} color={color} />
+            <Ionicons
+              size={26}
+              name={focused ? "newspaper" : "newspaper-outline"}
+              color={color}
+            />
           ),
         }}
       />
