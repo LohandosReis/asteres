@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,55 +14,159 @@ import {
   View,
 } from "react-native";
 
-export default function NewsScreen() {
-  const [noticias, setNoticias] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+// ─── TRADUÇÃO via MyMemory (gratuita, sem chave) ──────────────────
+const traduzir = async (texto: string): Promise<string> => {
+  if (!texto?.trim()) return texto;
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+      texto.slice(0, 500)
+    )}&langpair=en|pt-BR`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.responseStatus === 200) return data.responseData.translatedText;
+    return texto;
+  } catch {
+    return texto;
+  }
+};
 
-  // Assim que a tela abrir, ele busca as notícias reais
+// Traduz título + resumo em uma única requisição (economia de quota)
+const traduzirNoticia = async (
+  titulo: string,
+  resumo: string
+): Promise<{ tituloPT: string; resumoPT: string }> => {
+  const separador = " ||| ";
+  const combinado = `${titulo}${separador}${resumo}`;
+  try {
+    const traduzido = await traduzir(combinado);
+    const partes = traduzido.split(separador);
+    return {
+      tituloPT: partes[0]?.trim() || titulo,
+      resumoPT: partes[1]?.trim() || resumo,
+    };
+  } catch {
+    return { tituloPT: titulo, resumoPT: resumo };
+  }
+};
+
+type Noticia = {
+  id: number;
+  title: string;
+  summary: string;
+  image_url: string;
+  url: string;
+  news_site: string;
+  published_at: string;
+  tituloPT?: string;
+  resumoPT?: string;
+  traduzido?: boolean;
+};
+
+export default function NewsScreen() {
+  const [noticias, setNoticias] = useState<Noticia[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [traduzindo, setTraduzindo] = useState(false);
+  const [progresso, setProgresso] = useState(0);
+  const [idioma, setIdioma] = useState<"pt" | "en">("pt");
+
   useEffect(() => {
     buscarNoticiasEspaciais();
   }, []);
 
   const buscarNoticiasEspaciais = async () => {
+    setLoading(true);
+    setProgresso(0);
     try {
-      // API oficial de notícias espaciais (traz as 15 mais recentes)
       const response = await fetch(
-        "https://api.spaceflightnewsapi.net/v4/articles/?limit=15",
+        "https://api.spaceflightnewsapi.net/v4/articles/?limit=15"
       );
       const data = await response.json();
+      const resultados: Noticia[] = data.results;
 
-      setNoticias(data.results);
+      // Mostra notícias em inglês imediatamente
+      setNoticias(resultados);
+      setLoading(false);
+
+      // Traduz em background, 3 por vez para não sobrecarregar a API
+      setTraduzindo(true);
+      const tamanhoLote = 3;
+      const noticiasComTrad = [...resultados];
+
+      for (let i = 0; i < resultados.length; i += tamanhoLote) {
+        const lote = resultados.slice(i, i + tamanhoLote);
+        const traduzidas = await Promise.all(
+          lote.map((n) => traduzirNoticia(n.title, n.summary))
+        );
+        traduzidas.forEach((t, j) => {
+          noticiasComTrad[i + j] = {
+            ...noticiasComTrad[i + j],
+            tituloPT: t.tituloPT,
+            resumoPT: t.resumoPT,
+            traduzido: true,
+          };
+        });
+        // Atualiza a lista progressivamente a cada lote
+        setNoticias([...noticiasComTrad]);
+        setProgresso(Math.min(i + tamanhoLote, resultados.length));
+      }
     } catch (error) {
-      console.log("Erro ao buscar notícias: ", error);
-      // Se der erro de internet, você pode setar aquele array manual aqui como "Plano B"
+      console.log("Erro ao buscar notícias:", error);
     } finally {
       setLoading(false);
+      setTraduzindo(false);
     }
   };
 
-  // Função que abre a notícia completa no navegador do celular
   const abrirNoticia = async (url: string) => {
     const suportado = await Linking.canOpenURL(url);
-    if (suportado) {
-      await Linking.openURL(url);
-    } else {
-      console.log("Não foi possível abrir o link da notícia: " + url);
-    }
+    if (suportado) await Linking.openURL(url);
   };
 
-  // Formatador de data simples para deixar o visual mais limpo
   const formatarData = (dataString: string) => {
-    const data = new Date(dataString);
-    return data.toLocaleDateString("pt-BR");
+    return new Date(dataString).toLocaleDateString("pt-BR");
   };
+
+  const getTitulo = (item: Noticia) =>
+    idioma === "pt" && item.tituloPT ? item.tituloPT : item.title;
+
+  const getResumo = (item: Noticia) =>
+    idioma === "pt" && item.resumoPT ? item.resumoPT : item.summary;
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+
+        {/* ── HEADER ── */}
         <View style={styles.header}>
-          <Text style={styles.title}>Notícias Espaciais</Text>
+          <View>
+            <Text style={styles.title}>Notícias Espaciais</Text>
+            {traduzindo && (
+              <Text style={styles.traduzindoText}>
+                🌐 Traduzindo... {progresso}/{noticias.length}
+              </Text>
+            )}
+          </View>
+
+          {/* Botão PT / EN */}
+          {!loading && (
+            <TouchableOpacity
+              style={styles.idiomaBtn}
+              onPress={() => setIdioma(idioma === "pt" ? "en" : "pt")}
+            >
+              <Ionicons
+                name="language"
+                size={16}
+                color="#4DB6AC"
+                style={{ marginRight: 5 }}
+              />
+              <Text style={styles.idiomaBtnText}>
+                {idioma === "pt" ? "PT 🇧🇷" : "EN 🇺🇸"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
+        {/* ── LOADING INICIAL ── */}
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#4DB6AC" />
@@ -74,8 +179,17 @@ export default function NewsScreen() {
             data={noticias}
             keyExtractor={(item) => item.id.toString()}
             showsVerticalScrollIndicator={false}
+            ListFooterComponent={
+              traduzindo ? (
+                <View style={styles.footerTraduzindo}>
+                  <ActivityIndicator size="small" color="#4DB6AC" />
+                  <Text style={styles.footerTraduzindoText}>
+                    Traduzindo notícias restantes...
+                  </Text>
+                </View>
+              ) : null
+            }
             renderItem={({ item }) => (
-              // O onPress chama a função para abrir o link da notícia
               <TouchableOpacity
                 style={styles.newsCard}
                 onPress={() => abrirNoticia(item.url)}
@@ -86,13 +200,30 @@ export default function NewsScreen() {
                   style={styles.newsImage}
                 />
                 <View style={styles.newsInfo}>
+
+                  {/* Badge de idioma por notícia */}
+                  {idioma === "pt" && (
+                    <View style={styles.tradBadge}>
+                      {item.traduzido ? (
+                        <>
+                          <Ionicons name="checkmark-circle" size={11} color="#4DB6AC" />
+                          <Text style={styles.tradBadgeText}> Traduzido</Text>
+                        </>
+                      ) : (
+                        <>
+                          <ActivityIndicator size={10} color="#888" />
+                          <Text style={[styles.tradBadgeText, { color: "#888" }]}> Traduzindo...</Text>
+                        </>
+                      )}
+                    </View>
+                  )}
+
                   <Text style={styles.newsTitle} numberOfLines={2}>
-                    {item.title}
+                    {getTitulo(item)}
                   </Text>
 
-                  {/* Opcional: Mostra um resuminho da notícia antes de clicar */}
                   <Text style={styles.newsSummary} numberOfLines={2}>
-                    {item.summary}
+                    {getResumo(item)}
                   </Text>
 
                   <View style={styles.newsMeta}>
@@ -118,10 +249,41 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   container: { flex: 1, padding: 20 },
-  header: { marginBottom: 20, marginTop: 10 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 20,
+    marginTop: 10,
+  },
   title: { color: "#FFF", fontSize: 28, fontWeight: "bold" },
+  traduzindoText: { color: "#4DB6AC", fontSize: 11, marginTop: 4 },
+
+  idiomaBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(77,182,172,0.1)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(77,182,172,0.3)",
+    marginTop: 4,
+  },
+  idiomaBtnText: { color: "#4DB6AC", fontSize: 13, fontWeight: "bold" },
+
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { color: "#4DB6AC", marginTop: 10, fontSize: 16 },
+
+  footerTraduzindo: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    gap: 8,
+  },
+  footerTraduzindoText: { color: "#888", fontSize: 13 },
+
   newsCard: {
     backgroundColor: "#1A1A2E",
     borderRadius: 15,
@@ -132,6 +294,14 @@ const styles = StyleSheet.create({
   },
   newsImage: { width: "100%", height: 180, backgroundColor: "#2A2A3E" },
   newsInfo: { padding: 15 },
+
+  tradBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  tradBadgeText: { color: "#4DB6AC", fontSize: 10 },
+
   newsTitle: {
     color: "#FFF",
     fontSize: 18,
