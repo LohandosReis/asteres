@@ -19,7 +19,7 @@ export default function TabLayout() {
           paddingTop: 5,
         },
         tabBarLabelStyle: {
-          fontSize: 10, // levemente menor para caber 5 abas
+          fontSize: 10, // levemente menor para caber todas as abas
         },
       }}
     >
@@ -87,6 +87,38 @@ export default function TabLayout() {
             <Ionicons
               size={26}
               name={focused ? "newspaper" : "newspaper-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* ⚔️ Nova Aba: Social */}
+      <Tabs.Screen
+        name="social"
+        options={{
+          title: "Social",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              size={26}
+              name={focused ? "people" : "people-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* ℹ️ Nova Aba: Sobre */}
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: "Sobre",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              size={26}
+              name={
+                focused ? "information-circle" : "information-circle-outline"
+              }
               color={color}
             />
           ),
