@@ -352,24 +352,6 @@ const allAstros = [
     categoria: "constelacoes",
     icon: "star-outline",
   },
-
-  // COMETAS FAMOSOS (Novo!)
-  {
-    id: "halley",
-    nome: "Cometa Halley",
-    tipo: "Cometa",
-    categoria: "cometas",
-    icon: "comet", // Ícone nativo do MaterialCommunityIcons
-  },
-
-  // MISSÕES ESPACIAIS (Novo!)
-  {
-    id: "apollo11",
-    nome: "Apollo 11",
-    tipo: "Missão Espacial",
-    categoria: "missoes",
-    icon: "rocket-launch", // Ícone nativo do MaterialCommunityIcons
-  },
 ];
 
 export default function ExploreScreen() {
@@ -392,7 +374,6 @@ export default function ExploreScreen() {
     return matchesFilter && matchesSearch;
   });
 
-  // Acrescentado "Cometas" e "Missoes" na listagem de tags
   const categories = [
     "Todos",
     "Planetas",
@@ -400,8 +381,6 @@ export default function ExploreScreen() {
     "Nebulosas",
     "Galaxias",
     "Constelacoes",
-    "Cometas",
-    "Missoes",
   ];
 
   const renderAstroIcon = (iconName: string, category: string) => {
@@ -454,9 +433,7 @@ export default function ExploreScreen() {
                   ? "Galáxias"
                   : cat === "Constelacoes"
                     ? "Constelações"
-                    : cat === "Missoes"
-                      ? "Missões" // Ajuste visual para exibir o acento correto na tag
-                      : cat}
+                    : cat}
               </Text>
             </TouchableOpacity>
           ))}
