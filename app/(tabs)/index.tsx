@@ -14,7 +14,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
-  // 1. CONFIGURAÇÃO DAS CATEGORIAS COM ÍCONES
+  // 1. CONFIGURAÇÃO DAS CATEGORIAS COM ÍCONES (Atualizado com Cometas e Missões!)
   const categories = [
     {
       title: "Planetas",
@@ -49,6 +49,20 @@ export default function HomeScreen() {
       subtitle: "Mapas estelares da antiguidade",
       route: "/explore?filter=Constelacoes",
       icon: "auto-fix",
+      lib: "MaterialCommunityIcons",
+    },
+    {
+      title: "Cometas",
+      subtitle: "Visitantes gelados do Sistema Solar",
+      route: "/explore?filter=Cometas",
+      icon: "comet",
+      lib: "MaterialCommunityIcons",
+    },
+    {
+      title: "Missões",
+      subtitle: "A jornada humana rumo ao desconhecido",
+      route: "/explore?filter=Missoes",
+      icon: "rocket-launch",
       lib: "MaterialCommunityIcons",
     },
   ];
