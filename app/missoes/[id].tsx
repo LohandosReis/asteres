@@ -215,7 +215,8 @@ export default function DetailMissoes() {
 
     try {
       const filename = imgUrl.split("/").pop() || "nasa_image.jpg";
-      const fileUri = `${FileSystem.documentDirectory ?? ""}${filename}`; // Use fallback caso documentDirectory seja null
+      const docDir = (FileSystem as any).Paths?.document?.uri ?? "";
+      const fileUri = `${docDir}${filename}`; // Use fallback caso documentDirectory seja null
 
       const { uri } = await FileSystem.downloadAsync(imgUrl, fileUri);
 
