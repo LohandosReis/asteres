@@ -2,19 +2,20 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Modal,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Modal,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { publishQuizScore } from "../../services/contentHelpers";
 
 // ─── TIPAGENS DE DIFICULDADE E BADGES ─────────────────────────────
 type Dificuldade = "easy" | "medium" | "hard";
@@ -695,7 +696,11 @@ export default function QuizTabScreen() {
         }
       }
 
+      const delta = novaPontuacao - globalScore;
       setGlobalScore(novaPontuacao);
+      if (delta > 0) {
+        void publishQuizScore(delta).catch(() => {});
+      }
       setSequenciaAtual(novaSequencia);
       setMaxSequencia(novoMaxSeq);
 

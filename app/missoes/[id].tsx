@@ -1,34 +1,59 @@
-import { Ionicons } from "@expo/vector-icons";
+﻿import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    Image,
-    Linking,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  Linking,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
+const fallbackImageUrl =
+  "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80";
 
-// 1. BANCO DE DADOS EXPANDIDO COM VÍDEOS/DOCUMENTÁRIOS DO YOUTUBE
-const missoesData: Record<string, any> = {
+interface MissionInfo {
+  nome: string;
+  tipo: string;
+  desc: string;
+  lancamento: string;
+  objetivo: string;
+  videoLinks: { title: string; url: string }[];
+  gallery: string[];
+  curiosidades: string[];
+}
+
+const missoesData: Record<string, MissionInfo> = {
   apollo11: {
     nome: "Apollo 11",
     tipo: "Missão Tripulada",
     desc: "A histórica missão que realizou o maior feito tecnológico do século: pousar os primeiros humanos na Lua com segurança.",
     lancamento: "16 de Julho de 1969",
     objetivo: "Realizar um pouso lunar tripulado e retornar à Terra.",
-    videoUrl: "https://www.youtube.com/watch?v=RMINSD7MmT4", // Vídeo original da restauração do pouso da NASA
-    videoTitulo: "Pouso Lunar Original da Apollo 11 (NASA)",
+    videoLinks: [
+      {
+        title: "Pouso Lunar Apollo 11 (NASA)",
+        url: "https://www.youtube.com/watch?v=RMINSD7MmT4",
+      },
+      {
+        title: "Documentário Apollo 11 - NASA",
+        url: "https://www.youtube.com/watch?v=E3w-6zFBl0A",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/as11-40-5875/as11-40-5875~orig.jpg",
+      "https://images-assets.nasa.gov/image/as11-44-6554/as11-44-6554~orig.jpg",
+      "https://images-assets.nasa.gov/image/as11-40-5874/as11-40-5874~orig.jpg",
+    ],
     curiosidades: [
       "Neil Armstrong e Buzz Aldrin caminharam na superfície da Lua por quase três horas.",
       "Eles coletaram mais de 21 kg de material lunar para análise.",
@@ -42,8 +67,21 @@ const missoesData: Record<string, any> = {
     lancamento: "5 de Setembro de 1977",
     objetivo:
       "Explorar os sistemas de Júpiter e Saturno e seus respectivos anéis e luas.",
-    videoUrl: "https://www.youtube.com/watch?v=H7S86mZ71vI", // Documentário sobre a jornada da Voyager
-    videoTitulo: "A Jornada Interestelar da Voyager (NASA/JPL)",
+    videoLinks: [
+      {
+        title: "A Jornada Interestelar da Voyager",
+        url: "https://www.youtube.com/watch?v=H7S86mZ71vI",
+      },
+      {
+        title: "Documentário Voyager 1 - NASA",
+        url: "https://www.youtube.com/watch?v=EepXbmc6s6w",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/PIA23884/PIA23884~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA08531/PIA08531~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA05227/PIA05227~orig.jpg",
+    ],
     curiosidades: [
       "Carrega o icônico 'Golden Record', um disco contendo sons e imagens da Terra.",
       "Descobriu vulcões ativos na lua Io de Júpiter.",
@@ -57,8 +95,21 @@ const missoesData: Record<string, any> = {
     lancamento: "16 de Novembro de 2022",
     objetivo:
       "Testar o megafoguete SLS e a espaçonave Orion em órbita lunar profunda.",
-    videoUrl: "https://www.youtube.com/watch?v=CMLD0L_Z6g8", // Transmissão oficial do lançamento da Artemis I
-    videoTitulo: "Lançamento Oficial Completo da Artemis I",
+    videoLinks: [
+      {
+        title: "Lançamento Oficial da Artemis I",
+        url: "https://www.youtube.com/watch?v=CMLD0L_Z6g8",
+      },
+      {
+        title: "Resumo da Missão Artemis I",
+        url: "https://www.youtube.com/watch?v=qK6FpKxY4xQ",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/KSC-20221116-PH-NASA01_0114/KSC-20221116-PH-NASA01_0114~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA25582/PIA25582~orig.jpg",
+      "https://images-assets.nasa.gov/image/KSC-20221116-PH-NASA01_0091/KSC-20221116-PH-NASA01_0091~orig.jpg",
+    ],
     curiosidades: [
       "A cápsula Orion viajou mais longe do que qualquer nave para humanos já foi.",
       "Levou manequins equipados com sensores para medir níveis de radiação.",
@@ -72,8 +123,21 @@ const missoesData: Record<string, any> = {
     lancamento: "24 de Abril de 1990",
     objetivo:
       "Observar o universo na luz visível, ultravioleta e infravermelha próxima sem a distorção da atmosfera.",
-    videoUrl: "https://www.youtube.com/watch?v=p0Z3Lg_8Cis", // Documentário oficial dos 30 anos do Hubble
-    videoTitulo: "Hubbel: 30 Anos de Revelações Cósmicas",
+    videoLinks: [
+      {
+        title: "Hubble: 30 Anos de Revelações Cósmicas",
+        url: "https://www.youtube.com/watch?v=p0Z3Lg_8Cis",
+      },
+      {
+        title: "Documentário Hubble",
+        url: "https://www.youtube.com/watch?v=Gvpsj_yyAwY",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/PIA03173/PIA03173~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA15570/PIA15570~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA18182/PIA18182~orig.jpg",
+    ],
     curiosidades: [
       "Ajudou a determinar a idade do universo com mais precisão (cerca de 13,8 bilhões de anos).",
       "Mostrou que a expansão do universo está se acelerando devido à energia escura.",
@@ -87,8 +151,21 @@ const missoesData: Record<string, any> = {
     lancamento: "25 de Dezembro de 2021",
     objetivo:
       "Investigar a luz das primeiras estrelas e galáxias e estudar a atmosfera de exoplanetas.",
-    videoUrl: "https://www.youtube.com/watch?v=1C_xu6fEcl0", // Lançamento e primeiras imagens explicadas pela NASA
-    videoTitulo: "James Webb: O Início do Universo em Infravermelho",
+    videoLinks: [
+      {
+        title: "James Webb: O Início do Universo em Infravermelho",
+        url: "https://www.youtube.com/watch?v=1C_xu6fEcl0",
+      },
+      {
+        title: "Documentário JWST",
+        url: "https://www.youtube.com/watch?v=4kZV7E6P4p0",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/GSFC_20220712_JWST_pages_000002/GSFC_20220712_JWST_pages_000002~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA23647/PIA23647~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA23495/PIA23495~orig.jpg",
+    ],
     curiosidades: [
       "Seu espelho banhado a ouro possui 6,5 metros de diâmetro.",
       "Opera no ponto de Lagrange L2, a 1,5 milhão de quilômetros da Terra.",
@@ -102,8 +179,21 @@ const missoesData: Record<string, any> = {
     lancamento: "26 de Novembro de 2011",
     objetivo:
       "Investigar se Marte já teve condições ambientais favoráveis para a vida microbiana.",
-    videoUrl: "https://www.youtube.com/watch?v=P4boyXQuUIw", // Animação icônica dos 7 minutos de terror do pouso
-    videoTitulo: "Curiosity: Os 7 Minutos de Terror do Pouso em Marte",
+    videoLinks: [
+      {
+        title: "Curiosity: Os 7 Minutos de Terror do Pouso em Marte",
+        url: "https://www.youtube.com/watch?v=P4boyXQuUIw",
+      },
+      {
+        title: "Missão Curiosity",
+        url: "https://www.youtube.com/watch?v=Wb48Qpj5-v0",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/PIA19803/PIA19803~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA20237/PIA20237~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA16945/PIA16945~orig.jpg",
+    ],
     curiosidades: [
       "Pousou em Marte usando um sistema revolucionário de 'Guindaste Espacial' (Sky Crane).",
       "Descobriu evidências definitivas de antigos lagos de água líquida no passado de Marte.",
@@ -117,8 +207,21 @@ const missoesData: Record<string, any> = {
     lancamento: "30 de Julho de 2020",
     objetivo:
       "Explorar a Cratera Jezero, buscar bioassinaturas e armazenar tubos de amostras para retorno futuro.",
-    videoUrl: "https://www.youtube.com/watch?v=4czjS9h4Fpg", // Imagens e sons reais gravados durante o pouso
-    videoTitulo: "Imagens e Sons Reais do Pouso da Perseverance",
+    videoLinks: [
+      {
+        title: "Imagens e Sons Reais do Pouso da Perseverance",
+        url: "https://www.youtube.com/watch?v=4czjS9h4Fpg",
+      },
+      {
+        title: "Missão Perseverance",
+        url: "https://www.youtube.com/watch?v=iXkzY6h7VnI",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/PIA24424/PIA24424~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA24435/PIA24435~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA24481/PIA24481~orig.jpg",
+    ],
     curiosidades: [
       "Levou consigo o Ingenuity, o primeiro helicóptero a voar em outro planeta.",
       "Possui um instrumento (MOXIE) que gera oxigênio a partir da atmosfera de CO2 de Marte.",
@@ -132,8 +235,21 @@ const missoesData: Record<string, any> = {
     lancamento: "15 de Outubro de 1997",
     objetivo:
       "Estudar o planeta Saturno, seus anéis, sua magnetosfera e pousar uma sonda na lua Titã.",
-    videoUrl: "https://www.youtube.com/watch?v=xrGAQCq9BMU", // Grande Final da Cassini mergulhando em Saturno
-    videoTitulo: "O Grande Final da Missão Cassini em Saturno",
+    videoLinks: [
+      {
+        title: "O Grande Final da Missão Cassini em Saturno",
+        url: "https://www.youtube.com/watch?v=xrGAQCq9BMU",
+      },
+      {
+        title: "Documentário Cassini",
+        url: "https://www.youtube.com/watch?v=2bG-WMJ9YUw",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/PIA03883/PIA03883~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA13616/PIA13616~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA17172/PIA17172~orig.jpg",
+    ],
     curiosidades: [
       "A sonda Huygens fez um pouso histórico na superfície congelada de Titã em 2005.",
       "Descobriu oceanos globais de água líquida sob a crosta de gelo da lua Encélado.",
@@ -147,8 +263,21 @@ const missoesData: Record<string, any> = {
     lancamento: "19 de Janeiro de 2006",
     objetivo:
       "Explorar Plutão, suas luas e os objetos congelados localizados no Cinturão de Kuiper.",
-    videoUrl: "https://www.youtube.com/watch?v=dsI9gV7G_mQ", // Documentário sobre o histórico voo rasante por Plutão
-    videoTitulo: "Plutão Revelado: O Voo Histórico da New Horizons",
+    videoLinks: [
+      {
+        title: "Plutão Revelado: O Voo Histórico da New Horizons",
+        url: "https://www.youtube.com/watch?v=dsI9gV7G_mQ",
+      },
+      {
+        title: "Documentário New Horizons",
+        url: "https://www.youtube.com/watch?v=KZf-8yM8JfI",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/PIA19931/PIA19931~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA20211/PIA20211~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA20672/PIA20672~orig.jpg",
+    ],
     curiosidades: [
       "Descobriu uma gigantesca planície de gelo de nitrogênio em formato de coração em Plutão.",
       "Viajou por mais de 9 anos e 4,8 bilhões de quilômetros até chegar ao alvo principal.",
@@ -162,8 +291,21 @@ const missoesData: Record<string, any> = {
     lancamento: "14 de Maio de 1973",
     objetivo:
       "Estudar os efeitos da microgravidade nos humanos e realizar observações solares avançadas.",
-    videoUrl: "https://www.youtube.com/watch?v=mYshZ9g5W3Q", // Documentário histórico de arquivo sobre a Skylab
-    videoTitulo: "Skylab: A Primeira Estação Espacial da América (Arquivo)",
+    videoLinks: [
+      {
+        title: "Skylab: A Primeira Estação Espacial da América",
+        url: "https://www.youtube.com/watch?v=mYshZ9g5W3Q",
+      },
+      {
+        title: "Documentário Skylab",
+        url: "https://www.youtube.com/watch?v=UZiVXpws4aA",
+      },
+    ],
+    gallery: [
+      "https://images-assets.nasa.gov/image/GPN-2000-001055/GPN-2000-001055~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA02869/PIA02869~orig.jpg",
+      "https://images-assets.nasa.gov/image/PIA02095/PIA02095~orig.jpg",
+    ],
     curiosidades: [
       "Foi construída reaproveitando o terceiro estágio de um gigantesco foguete Saturno V.",
       "Abrigou três tripulações separadas de astronautas durante os anos de 1973 e 1974.",
@@ -172,7 +314,6 @@ const missoesData: Record<string, any> = {
   },
 };
 
-// IDS FIXOS DA NASA PARA A CAPA PRINCIPAL DE CADA UMA DAS 10 MISSÕES
 const NASA_FIXED_IDS: Record<string, string> = {
   apollo11: "as11-40-5875",
   voyager1: "PIA23884",
@@ -186,38 +327,160 @@ const NASA_FIXED_IDS: Record<string, string> = {
   skylab: "GPN-2000-001055",
 };
 
-export default function DetailMissoes() {
-  const { id } = useLocalSearchParams();
-  const router = useRouter();
+const missionArticleLinks: Record<string, string> = {
+  apollo11: "https://www.nasa.gov/mission_pages/apollo/apollo11.html",
+  voyager1: "https://www.nasa.gov/mission_pages/voyager/index.html",
+  artemis1: "https://www.nasa.gov/artemis-1",
+  hubble: "https://www.nasa.gov/mission_pages/hubble/main/index.html",
+  jameswebb: "https://www.nasa.gov/mission_pages/webb/main/index.html",
+  curiosity: "https://mars.nasa.gov/msl/home/",
+  perseverance: "https://mars.nasa.gov/mars2020/",
+  cassini: "https://www.nasa.gov/mission_pages/cassini/main/index.html",
+  newhorizons: "https://www.nasa.gov/mission_pages/newhorizons/main/index.html",
+  skylab: "https://www.nasa.gov/mission_pages/skylab/main/index.html",
+};
 
-  const [nasaImage, setNasaImage] = useState<string | null>(null);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
+const missionSearchTerms: Record<string, string> = {
+  apollo11: "Apollo 11 moon landing",
+  voyager1: "Voyager 1 Jupiter Saturn mission",
+  artemis1: "Artemis I Orion capsule launch",
+  hubble: "Hubble Space Telescope deep field",
+  jameswebb: "James Webb Space Telescope first images",
+  curiosity: "Curiosity rover Mars Gale Crater",
+  perseverance: "Perseverance rover Mars Jezero Crater",
+  cassini: "Cassini Saturn rings Enceladus",
+  newhorizons: "New Horizons Pluto Kuiper belt",
+  skylab: "Skylab space station Earth orbit",
+};
 
-  // Fallback seguro caso o ID não venha preenchido de início
-  const item = missoesData[id as string] || missoesData.apollo11;
+const normalizeUrl = (url: string): string =>
+  url.trim().replace(/^http:\/\//i, "https://");
 
-  // Função para abrir o documentário no navegador ou app do YouTube externo
-  const handleOpenVideo = async (url: string) => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert("Erro", "Não foi possível abrir este link de vídeo.");
+const isValidImageUrl = (url: unknown): url is string =>
+  typeof url === "string" &&
+  /^https?:\/\//i.test(url) &&
+  /\.(jpg|jpeg|png|webp)$/i.test(url);
+
+const extractArticleImages = (html: string): string[] => {
+  const imageUrls = new Set<string>();
+  const addUrl = (url: string) => {
+    const normalized = normalizeUrl(url);
+    if (
+      isValidImageUrl(normalized) &&
+      /nasa\.gov|images-assets\.nasa\.gov|mars\.nasa\.gov/i.test(normalized)
+    ) {
+      imageUrls.add(normalized);
     }
   };
 
-  // Função para Baixar e Compartilhar Imagem (Corrigida com crases padrão)
-  const handleDownloadImage = async (imgUrl: string | null) => {
+  const ogImage = html.match(
+    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+  )?.[1];
+  if (ogImage) addUrl(ogImage);
+
+  const twitterImage = html.match(
+    /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+  )?.[1];
+  if (twitterImage) addUrl(twitterImage);
+
+  Array.from(html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)).forEach(
+    (match) => {
+      addUrl(match[1]);
+    },
+  );
+
+  return Array.from(imageUrls).slice(0, 3);
+};
+
+const fetchNasaAssetImages = async (nasaId: string): Promise<string[]> => {
+  const response = await fetch(`https://images-api.nasa.gov/asset/${nasaId}`);
+  const json = await response.json();
+  const items = Array.isArray(json.collection?.items)
+    ? json.collection.items
+    : [];
+
+  return Array.from(
+    new Set<string>(
+      items
+        .map((item: any) => item.href)
+        .filter(isValidImageUrl)
+        .map(normalizeUrl),
+    ),
+  ).slice(0, 3);
+};
+
+const fetchNasaSearchImages = async (
+  query: string,
+  missionIdentifiers: string[],
+): Promise<string[]> => {
+  const response = await fetch(
+    `https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image`,
+  );
+  const json = await response.json();
+  const items = Array.isArray(json.collection?.items)
+    ? json.collection.items
+    : [];
+
+  return Array.from(
+    new Set<string>(
+      items
+        .filter((item: any) => {
+          const metadata = item.data?.[0] ?? {};
+          const title = String(metadata.title ?? "").toLowerCase();
+          const desc = String(metadata.description ?? "").toLowerCase();
+          const nasaId = String(metadata.nasa_id ?? "").toLowerCase();
+          const keywords = Array.isArray(metadata.keywords)
+            ? metadata.keywords.join(" ").toLowerCase()
+            : String(metadata.keywords ?? "").toLowerCase();
+
+          return missionIdentifiers.some(
+            (identifier) =>
+              title.includes(identifier) ||
+              desc.includes(identifier) ||
+              nasaId.includes(identifier) ||
+              keywords.includes(identifier),
+          );
+        })
+        .map((item: any) => item.links?.[0]?.href)
+        .filter(isValidImageUrl)
+        .map(normalizeUrl),
+    ),
+  ).slice(0, 3);
+};
+
+export default function DetailMissoes() {
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
+  const defaultMissionId = "apollo11";
+  const currentId = (id as string) || defaultMissionId;
+  const item = missoesData[currentId] || missoesData[defaultMissionId];
+
+  const [nasaImage, setNasaImage] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+
+  const openUrl = async (url: string) => {
+    try {
+      await Linking.openURL(encodeURI(url));
+    } catch (error) {
+      console.error("Erro ao abrir link:", error);
+      Alert.alert("Erro", "Não foi possível abrir este link.");
+    }
+  };
+
+  const downloadImage = async (imgUrl: string | null) => {
     if (!imgUrl) return;
     setDownloading(true);
 
     try {
       const filename = imgUrl.split("/").pop() || "nasa_image.jpg";
-      const docDir = (FileSystem as any).Paths?.document?.uri ?? "";
-      const fileUri = `${docDir}${filename}`; // Use fallback caso documentDirectory seja null
-
+      const fileSystemDirectory =
+        (FileSystem as any).documentDirectory ||
+        (FileSystem as any).Paths?.document?.uri ||
+        "";
+      const fileUri = `${fileSystemDirectory}${filename}`;
       const { uri } = await FileSystem.downloadAsync(imgUrl, fileUri);
 
       if (await Sharing.isAvailableAsync()) {
@@ -225,92 +488,87 @@ export default function DetailMissoes() {
       } else {
         Alert.alert(
           "Erro",
-          "O compartilhamento não está disponível neste dispositivo.",
+          "Compartilhamento não disponível neste dispositivo.",
         );
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert(
-        "Erro ao baixar",
-        "Não foi possível processar o download desta imagem.",
-      );
+      console.error("Erro ao baixar imagem:", error);
+      Alert.alert("Erro ao baixar", "Não foi possível baixar esta imagem.");
     } finally {
       setDownloading(false);
     }
   };
 
   useEffect(() => {
-    const fetchNasaData = async () => {
+    const loadImages = async () => {
       setLoading(true);
+      const missionGallery = item.gallery
+        .map(normalizeUrl)
+        .filter(isValidImageUrl);
+      let selectedImages = Array.from(new Set(missionGallery)).slice(0, 3);
+
       try {
-        const currentId = (id as string) || "apollo11";
         const nasaId = NASA_FIXED_IDS[currentId];
+        if (nasaId && selectedImages.length < 3) {
+          const assetImages = await fetchNasaAssetImages(nasaId);
+          selectedImages = Array.from(
+            new Set([...selectedImages, ...assetImages]),
+          ).slice(0, 3);
+        }
 
-        // 1. CARREGA IMAGEM DE CAPA PRINCIPAL (ID FIXO)
-        if (nasaId) {
-          const assetRes = await fetch(
-            `https://images-api.nasa.gov/asset/${nasaId}`,
-          );
-          const assetData = await assetRes.json();
-          const items: string[] = assetData.collection.items.map(
-            (i: any) => i.href,
-          );
-
-          const largeImg =
-            items.find((href) => href.includes("~orig.")) ||
-            items.find((href) => href.includes("~large.")) ||
-            items.find(
-              (href) => href.endsWith(".jpg") || href.endsWith(".png"),
-            ) ||
-            items[0];
-
-          if (largeImg) {
-            setNasaImage(largeImg.replace(/^http:\/\//i, "https://"));
+        if (selectedImages.length < 3) {
+          const articleUrl = missionArticleLinks[currentId];
+          if (articleUrl) {
+            try {
+              const articleResponse = await fetch(articleUrl);
+              const articleHtml = await articleResponse.text();
+              const articleImages = extractArticleImages(articleHtml).filter(
+                (url) => !selectedImages.includes(url),
+              );
+              selectedImages = Array.from(
+                new Set([...selectedImages, ...articleImages]),
+              ).slice(0, 3);
+            } catch (error) {
+              console.warn("Falha ao extrair imagens do artigo:", error);
+            }
           }
         }
 
-        // 2. BUSCA AUTOMÁTICA DE IMAGENS RELACIONADAS PARA A GALERIA
-        const currentItem = missoesData[currentId] || missoesData.apollo11;
-        const searchTerm = `${currentItem.nome}`;
-        const searchUrl = `https://images-api.nasa.gov/search?q=${encodeURIComponent(searchTerm)}&media_type=image`;
-
-        const searchResponse = await fetch(searchUrl);
-        const searchData = await searchResponse.json();
-
-        if (searchData.collection.items.length > 0) {
-          const urls: string[] = searchData.collection.items
-            .slice(1, 7) // Pula a primeira para evitar duplicar com a foto da capa
-            .map((item: any) => item.links?.[0]?.href)
-            .filter((href: string | undefined) => href !== undefined)
-            .map((href: string) => href.replace(/^http:\/\//i, "https://")); // Corrigido ://
-
-          setGalleryImages(urls);
-        }
-
-        if (!nasaImage && searchData.collection.items.length > 0) {
-          const fallbackThumb = searchData.collection.items[0].links?.[0]?.href;
-          if (fallbackThumb)
-            setNasaImage(fallbackThumb.replace(/^http:\/\//i, "https://"));
+        if (selectedImages.length < 3) {
+          const searchTerm = missionSearchTerms[currentId] || item.nome;
+          const identifiers = [
+            item.nome.toLowerCase(),
+            currentId.toLowerCase(),
+            NASA_FIXED_IDS[currentId]?.toLowerCase() ?? "",
+          ].filter(Boolean);
+          const searchImages = await fetchNasaSearchImages(
+            searchTerm,
+            identifiers,
+          );
+          selectedImages = Array.from(
+            new Set([...selectedImages, ...searchImages]),
+          ).slice(0, 3);
         }
       } catch (error) {
-        console.error("Erro ao buscar dados da NASA:", error);
+        console.error("Erro ao carregar imagens da missão:", error);
       } finally {
+        setGalleryImages(selectedImages);
+        setNasaImage(selectedImages[0] || fallbackImageUrl);
+        setActiveSlide(0);
         setLoading(false);
       }
     };
 
-    fetchNasaData();
-  }, [id]);
+    loadImages();
+  }, [currentId, item]);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* BOTÃO VOLTAR */}
       <TouchableOpacity style={styles.back} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={28} color="#FFF" />
       </TouchableOpacity>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* CONTAINER DA CAPA */}
         <View style={styles.imageContainer}>
           {loading ? (
             <ActivityIndicator
@@ -321,10 +579,9 @@ export default function DetailMissoes() {
           ) : (
             <>
               <SafeNasaImage uri={nasaImage} style={styles.image} />
-              {/* BOTÃO DE DOWNLOAD DA CAPA */}
               <TouchableOpacity
                 style={styles.downloadButton}
-                onPress={() => handleDownloadImage(nasaImage)}
+                onPress={() => downloadImage(nasaImage)}
                 disabled={downloading}
               >
                 {downloading ? (
@@ -347,35 +604,52 @@ export default function DetailMissoes() {
 
           <Text style={styles.desc}>{item.desc}</Text>
 
-          {/* NOVO: SEÇÃO DE VÍDEOS E DOCUMENTÁRIOS */}
-          {item.videoUrl && (
+          {missionArticleLinks[currentId] && (
+            <TouchableOpacity
+              style={styles.articleButton}
+              onPress={() => openUrl(missionArticleLinks[currentId])}
+              activeOpacity={0.8}
+            >
+              <View style={styles.articleButtonTextContainer}>
+                <Text style={styles.articleButtonTitle}>
+                  Leia o artigo oficial da NASA sobre esta missão
+                </Text>
+                <Text style={styles.articleButtonSub}>
+                  Página oficial com dados e imagens da missão
+                </Text>
+              </View>
+              <Ionicons name="open-outline" size={18} color="#4DB6AC" />
+            </TouchableOpacity>
+          )}
+
+          {item.videoLinks?.length > 0 && (
             <View style={styles.videoSection}>
-              <Text style={styles.sectionTitle}>Documentários e Mídia</Text>
-              <TouchableOpacity
-                style={styles.videoButton}
-                onPress={() => handleOpenVideo(item.videoUrl)}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name="logo-youtube"
-                  size={24}
-                  color="#FF0000"
-                  style={{ marginRight: 12 }}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.videoButtonTitle}>
-                    {item.videoTitulo}
-                  </Text>
-                  <Text style={styles.videoButtonSub}>
-                    Toque para assistir no YouTube
-                  </Text>
-                </View>
-                <Ionicons name="open-outline" size={18} color="#4DB6AC" />
-              </TouchableOpacity>
+              <Text style={styles.sectionTitle}>Documentários e Vídeos</Text>
+              {item.videoLinks.map((video, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.videoButton}
+                  onPress={() => openUrl(video.url)}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons
+                    name="logo-youtube"
+                    size={22}
+                    color="#FF0000"
+                    style={styles.videoIcon}
+                  />
+                  <View style={styles.videoTextContainer}>
+                    <Text style={styles.videoButtonTitle}>{video.title}</Text>
+                    <Text style={styles.videoButtonSub} numberOfLines={2}>
+                      Toque para assistir no YouTube
+                    </Text>
+                  </View>
+                  <Ionicons name="open-outline" size={18} color="#4DB6AC" />
+                </TouchableOpacity>
+              ))}
             </View>
           )}
 
-          {/* FICHA TÉCNICA */}
           <Text style={styles.sectionTitle}>Ficha de Missão</Text>
           <Text style={styles.dadoTexto}>
             <Text style={styles.boldLabel}>Lançamento:</Text> {item.lancamento}
@@ -385,49 +659,65 @@ export default function DetailMissoes() {
             {item.objetivo}
           </Text>
 
-          {/* GALERIA DE ARQUIVOS RELACIONADOS */}
           {galleryImages.length > 0 && (
-            <View>
-              <Text style={styles.sectionTitle}>Imagens Relacionadas</Text>
+            <View style={styles.sliderContainer}>
+              <Text style={styles.sectionTitle}>Galeria da Missão</Text>
               <ScrollView
                 horizontal
+                pagingEnabled
+                snapToInterval={width}
+                decelerationRate="fast"
                 showsHorizontalScrollIndicator={false}
-                style={styles.galleryScroll}
+                style={styles.carouselScroll}
+                onMomentumScrollEnd={(event) => {
+                  setActiveSlide(
+                    Math.round(event.nativeEvent.contentOffset.x / width),
+                  );
+                }}
               >
                 {galleryImages.map((imgUrl, idx) => (
-                  <View key={idx} style={styles.galleryCard}>
+                  <View key={idx} style={[styles.carouselCard, { width }]}>
                     <Image
                       source={{ uri: imgUrl }}
-                      style={styles.galleryImage}
+                      style={styles.carouselImage}
                     />
                     <TouchableOpacity
-                      style={styles.galleryDownloadBtn}
-                      onPress={() => handleDownloadImage(imgUrl)}
+                      style={styles.carouselDownloadBtn}
+                      onPress={() => downloadImage(imgUrl)}
                     >
                       <Ionicons
                         name="download-outline"
-                        size={14}
+                        size={16}
                         color="#FFF"
                       />
                     </TouchableOpacity>
                   </View>
                 ))}
               </ScrollView>
+              <View style={styles.dotsContainer}>
+                {galleryImages.map((_, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.dot,
+                      idx === activeSlide && styles.dotActive,
+                    ]}
+                  />
+                ))}
+              </View>
             </View>
           )}
 
-          {/* MARCOS E CURIOSIDADES */}
           <Text style={styles.sectionTitle}>Marcos e Descobertas</Text>
-          {item.curiosidades.map((c: string, i: number) => (
-            <Text key={i} style={styles.curiosidade}>
-              • {c}
+          {item.curiosidades.map((curiosidade, index) => (
+            <Text key={index} style={styles.curiosidade}>
+              • {curiosidade}
             </Text>
           ))}
 
           <Text style={styles.apiCredit}>
-            Arquivo NASA: {id?.toString().toUpperCase()} {"\n"}
-            Carregamento dinâmico sincronizado com servidores da divisão de
-            arquivos históricos.
+            Arquivo NASA: {currentId?.toString().toUpperCase()} {"\n"}
+            Conteúdo vinculado à missão e imagens preferenciais da NASA.
           </Text>
         </View>
         <View style={{ height: 40 }} />
@@ -490,8 +780,27 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 12,
   },
-  videoSection: {
-    marginTop: 10,
+  videoSection: { marginTop: 10 },
+  articleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#13212F",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(77, 182, 172, 0.25)",
+  },
+  articleButtonTextContainer: { flex: 1 },
+  articleButtonTitle: {
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  articleButtonSub: {
+    color: "#BBC5D1",
+    fontSize: 13,
   },
   videoButton: {
     flexDirection: "row",
@@ -503,6 +812,8 @@ const styles = StyleSheet.create({
   },
   videoButtonTitle: { color: "#FFF", fontSize: 16, fontWeight: "600" },
   videoButtonSub: { color: "#BBB", fontSize: 13, marginTop: 4 },
+  videoIcon: { marginRight: 12 },
+  videoTextContainer: { flex: 1 },
   dadoTexto: {
     color: "#E0E0E0",
     fontSize: 15,
@@ -518,39 +829,47 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     lineHeight: 18,
   },
-  galleryScroll: { marginVertical: 10 },
-  galleryCard: {
-    width: 140,
-    height: 100,
-    marginRight: 12,
-    position: "relative",
-    borderRadius: 8,
+  sliderContainer: { marginTop: 20 },
+  carouselScroll: { marginBottom: 10 },
+  carouselCard: {
+    height: 240,
+    borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#111",
   },
-  galleryImage: { width: "100%", height: "100%" },
-  galleryDownloadBtn: {
+  carouselImage: { width: "100%", height: "100%" },
+  carouselDownloadBtn: {
     position: "absolute",
-    bottom: 8,
-    right: 8,
+    bottom: 12,
+    right: 12,
     backgroundColor: "rgba(0,0,0,0.6)",
-    padding: 6,
-    borderRadius: 14,
+    padding: 10,
+    borderRadius: 20,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    marginHorizontal: 4,
+  },
+  dotActive: {
+    backgroundColor: "#4DB6AC",
   },
 });
 
 const SafeNasaImage = ({ uri, style }: { uri: string | null; style: any }) => {
-  const [imageError, setImageError] = React.useState(false);
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80";
-  const secureUri = uri
-    ? uri.replace(/^http:\/\//i, "https://")
-    : fallbackImage;
-  const finalUri = imageError || !uri ? fallbackImage : secureUri;
-
+  const [imageError, setImageError] = useState(false);
+  const validUri =
+    uri && isValidImageUrl(uri) ? normalizeUrl(uri) : fallbackImageUrl;
   return (
     <Image
-      source={{ uri: finalUri }}
+      source={{ uri: imageError ? fallbackImageUrl : validUri }}
       style={style}
       resizeMode="cover"
       onError={() => setImageError(true)}

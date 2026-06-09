@@ -2,14 +2,14 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  FlatList,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const allAstros = [
@@ -346,11 +346,88 @@ const allAstros = [
 
   // CONSTELAÇÕES
   {
-    id: "cruzeiro",
-    nome: "Cruzeiro do Sul",
+    id: "aries",
+    nome: "Áries",
     tipo: "Constelação",
     categoria: "constelacoes",
-    icon: "star-outline",
+    icon: "star",
+  },
+  {
+    id: "touro",
+    nome: "Touro",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "gemeos",
+    nome: "Gêmeos",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "cancer",
+    nome: "Câncer",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "leao",
+    nome: "Leão",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "virgem",
+    nome: "Virgem",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "libra",
+    nome: "Libra",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "escorpiao",
+    nome: "Escorpião",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "sagitario",
+    nome: "Sagitário",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "capricornio",
+    nome: "Capricórnio",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "aquario",
+    nome: "Aquário",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
+  },
+  {
+    id: "peixes",
+    nome: "Peixes",
+    tipo: "Constelação",
+    categoria: "constelacoes",
+    icon: "star",
   },
 
   // COMETAS FAMOSOS (Novo!)
@@ -359,7 +436,70 @@ const allAstros = [
     nome: "Cometa Halley",
     tipo: "Cometa",
     categoria: "cometas",
-    icon: "comet", // Ícone nativo do MaterialCommunityIcons
+    icon: "shooting-star", // Ícone nativo do MaterialCommunityIcons
+  },
+  {
+    id: "halebopp",
+    nome: "Cometa Hale-Bopp",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "neowise",
+    nome: "Cometa NEOWISE",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "encke",
+    nome: "Cometa Encke",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "swifttuttle",
+    nome: "Cometa Swift-Tuttle",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "ison",
+    nome: "Cometa ISON",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "lovejoy",
+    nome: "Cometa Lovejoy",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "shoemakerlevy9",
+    nome: "Cometa Shoemaker-Levy 9",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "churyumovgerasimenko",
+    nome: "Cometa 67P/Churyumov-Gerasimenko",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
+  },
+  {
+    id: "hyakutake",
+    nome: "Cometa Hyakutake",
+    tipo: "Cometa",
+    categoria: "cometas",
+    icon: "shooting-star",
   },
 
   // MISSÕES ESPACIAIS (Novo!)
@@ -368,7 +508,70 @@ const allAstros = [
     nome: "Apollo 11",
     tipo: "Missão Espacial",
     categoria: "missoes",
-    icon: "rocket-launch", // Ícone nativo do MaterialCommunityIcons
+    icon: "rocket-launch",
+  },
+  {
+    id: "voyager1",
+    nome: "Voyager 1",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "artemis1",
+    nome: "Artemis I",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "hubble",
+    nome: "Hubble",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "jameswebb",
+    nome: "James Webb",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "curiosity",
+    nome: "Curiosity",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "perseverance",
+    nome: "Perseverance",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "cassini",
+    nome: "Cassini-Huygens",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "newhorizons",
+    nome: "New Horizons",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
+  },
+  {
+    id: "skylab",
+    nome: "Skylab",
+    tipo: "Missão Espacial",
+    categoria: "missoes",
+    icon: "rocket-launch",
   },
 ];
 

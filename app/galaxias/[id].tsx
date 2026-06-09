@@ -1,16 +1,27 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Linking,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import {
+    getWikipediaSummary,
+    getWikipediaUrl,
+    getYouTubeSearchUrl,
+    isLiked,
+    toggleLike,
+} from "../../services/contentHelpers";
 
 const galaxiasData: Record<string, any> = {
   andromeda: {
@@ -148,7 +159,9 @@ export default function GalaxiaDetail() {
   const router = useRouter();
 
   const [nasaImage, setNasaImage] = useState<string | null>(null);
+  const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [wiki, setWiki] = useState<any | null>(null);
 
   // A chave de API não é estritamente necessária para buscas públicas de imagens,
   // mas foi mantida caso você adicione outras rotas da NASA no futuro.
@@ -243,7 +256,56 @@ export default function GalaxiaDetail() {
     };
 
     fetchNasaImage();
+    (async () => {
+      try {
+        const likedState = await isLiked("galaxia", id as string);
+        setLiked(likedState);
+      } catch {}
+      try {
+        const w = await getWikipediaSummary(item.nome);
+        if (w) setWiki(w);
+      } catch {}
+    })();
   }, [id]);
+
+  const openOriginal = async () => {
+    if (!nasaImage) return;
+    try {
+      await Linking.openURL(nasaImage);
+    } catch {
+      Alert.alert("Erro", "Não foi possível abrir a imagem original.");
+    }
+  };
+
+  const downloadImage = async () => {
+    if (!nasaImage) return Alert.alert("Aviso", "Imagem indisponível");
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        return Alert.alert(
+          "Permissão negada",
+          "Permissão de armazenamento necessária.",
+        );
+      }
+      const fileUri = FileSystem.cacheDirectory + `${id}.jpg`;
+      const { uri } = await FileSystem.downloadAsync(nasaImage, fileUri);
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert("Sucesso", "Imagem salva na galeria.");
+    } catch (e) {
+      Alert.alert("Erro", "Falha ao baixar a imagem.");
+    }
+  };
+
+  const handleToggleLike = async () => {
+    try {
+      const newState = await toggleLike("galaxia", id as string, {
+        nome: item.nome,
+      });
+      setLiked(newState);
+    } catch (e) {
+      Alert.alert("Login necessário", "Faça login para curtir este item.");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -268,18 +330,69 @@ export default function GalaxiaDetail() {
           <Text style={styles.title}>{item.nome}</Text>
           <Text style={styles.subtitle}>{item.tipo}</Text>
 
+          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                void Linking.openURL(getWikipediaUrl(item.nome));
+              }}
+            >
+              <Text style={styles.actionText}>Artigo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                void Linking.openURL(getYouTubeSearchUrl(item.nome));
+              }}
+            >
+              <Text style={styles.actionText}>Vídeo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={openOriginal}>
+              <Text style={styles.actionText}>Abrir Original</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={downloadImage}>
+              <Text style={styles.actionText}>Baixar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionBtn,
+                liked ? { backgroundColor: "#4DB6AC" } : {},
+              ]}
+              onPress={handleToggleLike}
+            >
+              <Text style={styles.actionText}>
+                {liked ? "Curtido" : "Curtir"}
+              </Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.nasaBadge}>
             <Text style={styles.nasaBadgeText}>IMAGEM OFICIAL NASA</Text>
           </View>
 
-          <Text style={styles.desc}>{item.desc}</Text>
+          {wiki ? (
+            <>
+              <Text style={styles.sectionTitle}>Mais Detalhes (Wikipedia)</Text>
+              <Text style={styles.dataText}>{wiki.description}</Text>
+              <Text style={styles.desc}>{wiki.extract}</Text>
+              <TouchableOpacity
+                style={[styles.actionBtn, { marginTop: 10 }]}
+                onPress={() => void Linking.openURL(wiki.pageUrl)}
+              >
+                <Text style={styles.actionText}>Abrir na Wikipedia</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={styles.desc}>{item.desc}</Text>
 
-          <Text style={styles.sectionTitle}>Fatos Galácticos</Text>
-          {item.curiosidades.map((c: string, i: number) => (
-            <Text key={i} style={styles.curiosidade}>
-              ✦ {c}
-            </Text>
-          ))}
+              <Text style={styles.sectionTitle}>Fatos Galácticos</Text>
+              {item.curiosidades.map((c: string, i: number) => (
+                <Text key={i} style={styles.curiosidade}>
+                  ✦ {c}
+                </Text>
+              ))}
+            </>
+          )}
 
           <Text style={styles.apiCredit}>
             Arquivo NASA: Galáxias {`\n`}
@@ -341,6 +454,15 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     lineHeight: 18,
   },
+  actionBtn: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.02)",
+  },
+  actionText: { color: "#FFF", fontSize: 13, fontWeight: "600" },
 });
 
 // COMPONENTE BLINDADO DE IMAGEM — evita tela preta

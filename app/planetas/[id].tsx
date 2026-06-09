@@ -1,16 +1,27 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Linking,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import {
+    getWikipediaSummary,
+    getWikipediaUrl,
+    getYouTubeSearchUrl,
+    isLiked,
+    toggleLike,
+} from "../../services/contentHelpers";
 
 const planetasData: Record<string, any> = {
   mercurio: {
@@ -95,12 +106,15 @@ export default function Detail() {
   const router = useRouter();
 
   const [nasaImage, setNasaImage] = useState<string | null>(null);
+  const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const NASA_API_KEY = "cpbdC3dZ268gOVortguzZgqUfbKGDodrnV4rYO68";
   const item = planetasData[id as string] || planetasData.mercurio;
+  const [wiki, setWiki] = useState<any | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     const fetchNasaImage = async () => {
       setLoading(true);
       try {
@@ -193,7 +207,60 @@ export default function Detail() {
     };
 
     fetchNasaImage();
+    (async () => {
+      try {
+        const likedState = await isLiked("planeta", id as string);
+        if (mounted) setLiked(likedState);
+      } catch {}
+      try {
+        const w = await getWikipediaSummary(item.nome);
+        if (mounted && w) setWiki(w);
+      } catch {}
+    })();
+
+    return () => {
+      mounted = false;
+    };
   }, [id]);
+
+  const openOriginal = async () => {
+    if (!nasaImage) return;
+    try {
+      await Linking.openURL(nasaImage);
+    } catch {
+      Alert.alert("Erro", "Não foi possível abrir a imagem original.");
+    }
+  };
+
+  const downloadImage = async () => {
+    if (!nasaImage) return Alert.alert("Aviso", "Imagem indisponível");
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        return Alert.alert(
+          "Permissão negada",
+          "Permissão de armazenamento necessária.",
+        );
+      }
+      const fileUri = FileSystem.cacheDirectory + `${id}.jpg`;
+      const { uri } = await FileSystem.downloadAsync(nasaImage, fileUri);
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert("Sucesso", "Imagem salva na galeria.");
+    } catch (e) {
+      Alert.alert("Erro", "Falha ao baixar a imagem.");
+    }
+  };
+
+  const handleToggleLike = async () => {
+    try {
+      const newState = await toggleLike("planeta", id as string, {
+        nome: item.nome,
+      });
+      setLiked(newState);
+    } catch (e) {
+      Alert.alert("Login necessário", "Faça login para curtir este item.");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -218,11 +285,61 @@ export default function Detail() {
           <Text style={styles.title}>{item.nome}</Text>
           <Text style={styles.subtitle}>{item.tipo}</Text>
 
+          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                void Linking.openURL(getWikipediaUrl(item.nome));
+              }}
+            >
+              <Text style={styles.actionText}>Artigo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                void Linking.openURL(getYouTubeSearchUrl(item.nome));
+              }}
+            >
+              <Text style={styles.actionText}>Vídeo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={openOriginal}>
+              <Text style={styles.actionText}>Abrir Original</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={downloadImage}>
+              <Text style={styles.actionText}>Baixar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionBtn,
+                liked ? { backgroundColor: "#4DB6AC" } : {},
+              ]}
+              onPress={handleToggleLike}
+            >
+              <Text style={styles.actionText}>
+                {liked ? "Curtido" : "Curtir"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={styles.nasaBadge}>
             <Text style={styles.nasaBadgeText}>IMAGEM OFICIAL NASA</Text>
           </View>
 
-          <Text style={styles.desc}>{item.desc}</Text>
+          {wiki ? (
+            <>
+              <Text style={styles.sectionTitle}>Mais Detalhes (Wikipedia)</Text>
+              <Text style={styles.dataText}>{wiki.description}</Text>
+              <Text style={styles.desc}>{wiki.extract}</Text>
+              <TouchableOpacity
+                style={[styles.actionBtn, { marginTop: 10 }]}
+                onPress={() => void Linking.openURL(wiki.pageUrl)}
+              >
+                <Text style={styles.actionText}>Abrir na Wikipedia</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text style={styles.desc}>{item.desc}</Text>
+          )}
 
           <Text style={styles.sectionTitle}>Curiosidades</Text>
           {item.curiosidades.map((c: string, i: number) => (
@@ -291,6 +408,13 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     lineHeight: 18,
   },
+  actionBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#0C1D22",
+    borderRadius: 10,
+  },
+  actionText: { color: "#FFF", fontSize: 13, fontWeight: "700" },
 });
 
 // COMPONENTE BLINDADO DE IMAGEM — evita tela preta
