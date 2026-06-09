@@ -1,4 +1,4 @@
-# 🚀 Asteres — Explorador Astronômico
+﻿# 🚀 Asteres — Explorador Astronômico
 
 **Asteres** é um aplicativo mobile educacional de astronomia construído com **React Native**, **Expo** e **Expo Router**. O app permite explorar planetas, luas, nebulosas, galáxias, constelações, cometas e missões espaciais com imagens oficiais da NASA, além de oferecer um quiz gamificado, foto astronômica do dia, notícias do espaço e um módulo social com ranking e desafios entre usuários.
 
@@ -42,17 +42,22 @@
 O app é organizado em abas, cada uma cobrindo uma área de exploração:
 
 ### 🪐 Início (`index`)
+
 Tela inicial com as categorias astronômicas apresentadas em cards com ícones, que direcionam para a aba **Explorar** com o filtro já aplicado.
 
 ### 🔍 Explorar (`explore`)
+
 Catálogo completo de objetos astronômicos com **busca por nome** e **filtro por categoria** (suporta deep-link via parâmetro `?filter=`). Cada item leva à sua página de detalhes.
 
 ### 🧾 Páginas de Detalhe
+
 Rotas dinâmicas dedicadas para cada categoria, com imagens da NASA, descrições científicas, curiosidades e links externos (Wikipédia / YouTube):
 `planetas/[id]`, `luas/[id]`, `nebulosas/[id]`, `galaxias/[id]`, `constelacoes/[id]`, `cometas/[id]`, `missoes/[id]`.
 
 ### ❓ Quiz (`quiz`)
+
 Quiz interativo de astronomia com:
+
 - **Níveis de dificuldade** — Fácil, Médio e Especialista, com multiplicadores de pontos (1×, 2×, 3×).
 - **Patentes/Badges** — Novato, Explorador, Veterano e Lenda Cósmica, definidas pela pontuação total.
 - **Conquistas** — medalhas por rodadas completas, sequências de acertos, rodada perfeita e marcos de pontuação.
@@ -60,22 +65,28 @@ Quiz interativo de astronomia com:
 - **Pontuação persistente** localmente (`AsyncStorage`) e sincronização de XP/nível com o Firebase quando autenticado.
 
 ### 🔭 Hoje / APOD (`apod`)
+
 Foto Astronômica do Dia (NASA APOD) com tradução da descrição, além de **cálculos astronômicos** em tempo real (posição/distância da Terra ao Sol, fase atual da Lua) e botão de **download** da imagem.
 
 ### 📰 Notícias (`news`)
+
 Feed das últimas notícias espaciais via **Spaceflight News API**, com título e resumo traduzidos para português e links para a matéria completa.
 
 ### 👥 Social (`social`)
+
 Módulo social com **Firebase Authentication**:
+
 - Cadastro e login por e-mail/senha.
 - Perfil de usuário (nome, idade, nível e XP).
 - **Ranking global** dos top 10 usuários por nível, em tempo real.
 - **Busca** de usuários e envio/recebimento de **desafios** (aceitar/recusar) em tempo real.
 
 ### ℹ️ Sobre (`about`)
+
 Informações sobre o aplicativo, sua missão e as tecnologias utilizadas.
 
 ### 🌐 Recursos transversais
+
 - **Favoritos / Likes** persistidos no Firestore por usuário.
 - **Cache offline** de imagens e respostas de API (válido por 24h) via hook `useOfflineCache`.
 - **Feedback háptico** na navegação por abas.
@@ -84,15 +95,15 @@ Informações sobre o aplicativo, sua missão e as tecnologias utilizadas.
 
 ## 🛠️ Tecnologias
 
-| Categoria | Stack |
-|-----------|-------|
-| Core | Expo `~54`, React Native `0.81`, React `19`, TypeScript `~5.9` |
-| Navegação | Expo Router `~6` (rotas tipadas), React Navigation (bottom tabs) |
-| Backend / Auth | Firebase `^12` (Authentication + Firestore) |
-| Armazenamento local | `@react-native-async-storage/async-storage`, `expo-file-system` |
-| UI / UX | `@expo/vector-icons`, `expo-image`, `react-native-reanimated`, `react-native-gesture-handler`, `expo-haptics` |
-| Utilidades | `expo-web-browser`, `expo-linking`, `expo-sharing`, `expo-media-library`, `expo-splash-screen` |
-| Qualidade | ESLint (`eslint-config-expo`) |
+| Categoria           | Stack                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Core                | Expo `~54`, React Native `0.81`, React `19`, TypeScript `~5.9`                                                |
+| Navegação           | Expo Router `~6` (rotas tipadas), React Navigation (bottom tabs)                                              |
+| Backend / Auth      | Firebase `^12` (Authentication + Firestore)                                                                   |
+| Armazenamento local | `@react-native-async-storage/async-storage`, `expo-file-system`                                               |
+| UI / UX             | `@expo/vector-icons`, `expo-image`, `react-native-reanimated`, `react-native-gesture-handler`, `expo-haptics` |
+| Utilidades          | `expo-web-browser`, `expo-linking`, `expo-sharing`, `expo-media-library`, `expo-splash-screen`                |
+| Qualidade           | ESLint (`eslint-config-expo`)                                                                                 |
 
 ---
 
@@ -205,13 +216,13 @@ A inicialização do Firebase fica em [`services/firebaseConfig.ts`](services/fi
 
 ## 📜 Scripts Disponíveis
 
-| Script | Descrição |
-|--------|-----------|
-| `npm start` | Inicia o Expo Dev Server |
-| `npm run android` | Abre o app em um dispositivo/emulador Android |
-| `npm run ios` | Abre o app em um simulador iOS |
-| `npm run web` | Abre o app no navegador |
-| `npm run lint` | Executa o ESLint (via `expo lint`) |
+| Script                  | Descrição                                      |
+| ----------------------- | ---------------------------------------------- |
+| `npm start`             | Inicia o Expo Dev Server                       |
+| `npm run android`       | Abre o app em um dispositivo/emulador Android  |
+| `npm run ios`           | Abre o app em um simulador iOS                 |
+| `npm run web`           | Abre o app no navegador                        |
+| `npm run lint`          | Executa o ESLint (via `expo lint`)             |
 | `npm run reset-project` | Reseta o projeto a um estado inicial em branco |
 
 ---
@@ -235,11 +246,11 @@ eas build --profile production --platform all
 
 ## 🗄️ Modelo de Dados (Firestore)
 
-| Coleção | Documento | Campos principais |
-|---------|-----------|-------------------|
-| `usuarios` | `{uid}` | `nome`, `idade`, `nivel`, `xp` |
-| `likes` | `{uid}_{tipo}_{id}` | `userId`, `type`, `itemId`, `meta`, `createdAt` |
-| `desafios` | auto-id | `remetenteId`, `remetenteNome`, `destinatarioId`, `destinatarioNome`, `status` (`pendente`/`aceito`/`recusado`), `dataEnvio` |
+| Coleção    | Documento           | Campos principais                                                                                                            |
+| ---------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `usuarios` | `{uid}`             | `nome`, `idade`, `nivel`, `xp`                                                                                               |
+| `likes`    | `{uid}_{tipo}_{id}` | `userId`, `type`, `itemId`, `meta`, `createdAt`                                                                              |
+| `desafios` | auto-id             | `remetenteId`, `remetenteNome`, `destinatarioId`, `destinatarioNome`, `status` (`pendente`/`aceito`/`recusado`), `dataEnvio` |
 
 O XP é incrementado a cada rodada do quiz e o `nivel` é recalculado como `floor(xp / 100) + 1` (ver `publishQuizScore` em `services/contentHelpers.ts`).
 
